@@ -52,6 +52,7 @@ pub use signature::Signature;
 pub use tone_curve::ToneCurve;
 pub use transform::{
     Stride, Transform, Transform2Factory, Transform2Fn, TransformFactory, TransformFn,
+    TransformFunc,
 };
 pub use ucr_bg::UcrBg;
 pub use vec3::Vec3;

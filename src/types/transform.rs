@@ -48,6 +48,11 @@ pub type Transform2Factory = fn(
     &'static str,
 >;
 
+pub enum TransformFunc {
+    Factory(Transform2Factory),
+    OldFactory(TransformFactory),
+}
+
 pub struct Stride {
     pub bytes_per_line_in: u32,
     pub bytes_per_line_out: u32,

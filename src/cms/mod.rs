@@ -1452,7 +1452,7 @@ pub use crate::flags::FLAGS_NONEGATIVES as FLAGS_NONEGATIVES;
 pub use crate::flags::FLAGS_COPY_ALPHA as FLAGS_COPY_ALPHA;
 
 // Fine-tune control over number of gridpoints
-pub use crate::GRIDPOINTS as FLAGS_GRIDPOINTS;
+pub use crate::flags::GRIDPOINTS as FLAGS_GRIDPOINTS;
 
 // CRD special
 pub use crate::flags::FLAGS_NODEFAULTRESOURCEDEF as FLAGS_NODEFAULTRESOURCEDEF;

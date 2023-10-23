@@ -15,3 +15,4 @@ pub mod colorimetric_intent;
 pub mod mpe_stage;
 pub mod curve_segment;
 pub mod response_curve;
+pub mod plugin;

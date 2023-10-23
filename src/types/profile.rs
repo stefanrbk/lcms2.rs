@@ -1,4 +1,4 @@
-use super::{Signature, DateTime, EncodedXYZ, ProfileID};
+use super::{DateTime, EncodedXYZ, ProfileID, Signature};
 
 pub struct Header {
     pub size: u32,
@@ -18,9 +18,12 @@ pub struct Header {
     pub illuminant: EncodedXYZ,
     pub creator: Signature,
     pub profile_id: ProfileID,
-    pub reserved: [i8;28],
+    pub reserved: [i8; 28],
 }
 
+pub struct Profile {
+    pub context_id: crate::Context,
+}
 pub mod data_access {
     pub const EMBEDDED_PROFILE_FALSE: u32 = 0;
     pub const EMBEDDED_PROFILE_TRUE: u32 = 1;
@@ -29,7 +32,7 @@ pub mod data_access {
 }
 
 pub mod r#use {
-    pub const AS_INPUT:u32 = 0;
+    pub const AS_INPUT: u32 = 0;
     pub const AS_OUTPUT: u32 = 1;
     pub const AS_PROOF: u32 = 2;
 }

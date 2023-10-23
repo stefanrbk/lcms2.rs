@@ -11,6 +11,8 @@ pub const MAX_INPUT_DIMENSIONS: u32 = 15;
 pub const NO_LANGUAGE: [u8; 2] = [0, 0];
 pub const NO_COUNTRY: [u8; 2] = [0, 0];
 
+pub const MAX_TYPES_IN_PLUGIN: u32 = 20;
+
 pub type S15Fixed16Number = i32;
 pub type U16Fixed16Number = u32;
 pub type U8Fixed8Number = u16;
@@ -20,12 +22,12 @@ pub type SamplerFloat = fn(In: &[f32], Out: &mut [f32], Cargo: &mut dyn Any) -> 
 
 pub use state::ContextStruct as Context;
 
-mod state;
-
 pub mod cms;
+pub mod io;
 pub mod list;
 pub mod plugin;
 pub mod sig;
+pub mod state;
 pub mod types;
 
 pub mod device_attribute {
@@ -117,6 +119,7 @@ pub mod flags {
             (($n) & 0xFF) << 16
         };
     }
+    pub use GRIDPOINTS;
 
     // // CRD special
     pub const FLAGS_NODEFAULTRESOURCEDEF: u32 = 0x01000000;

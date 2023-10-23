@@ -1,41 +1,40 @@
-use crate::types::InterpParams;
+use std::any::Any;
 
-pub type InterpFn<T> = fn(Input: &[T], Output: &mut [T], p: InterpParams<T>);
+use crate::types::Signature;
 
-pub enum InterpFunction {
-    F32(InterpFn<f32>),
-    U16(InterpFn<u16>)
+pub type FreeUserDataFn = fn(context_id: crate::Context, Box<dyn Any>);
+pub type DupUserDataFn = fn(contect_id: crate::Context, Box<&dyn Any>) -> Box<dyn Any>;
+
+pub const GUESS_MAX_WORKERS: i32 = -1;
+
+pub struct Base {
+    pub magic: Signature,
+    pub expected_version: u32,
+    pub r#type: Signature,
 }
 
-impl InterpFunction {
-    pub const fn is_f32(&self) -> bool {
-        matches!(*self, Self::F32(_))
-    }
-    pub const fn is_u16(&self) -> bool {
-        matches!(*self, Self::U16(_))
-    }
-    pub fn is_f32_and(self, f: impl FnOnce(InterpFn<f32>) -> bool) -> bool {
-        match self {
-            Self::U16(_) => false,
-            Self::F32(x) => f(x)
-        }
-    }
-    pub fn is_u16_and(self, f: impl FnOnce(InterpFn<u16>) -> bool) -> bool {
-        match self {
-            Self::U16(x) => f(x),
-            Self::F32(_) => false
-        }
-    }
-}
+mod formatter;
+mod interp;
+mod mpe;
+mod mutex;
+mod optimization;
+mod parallel;
+mod parametric_curve;
+mod rendering_intent;
+mod tag;
+mod tag_type;
+mod transform;
 
-impl From<InterpFn<u16>> for InterpFunction {
-    fn from(val: InterpFn<u16>) -> InterpFunction {
-        InterpFunction::U16(val)
-    }
-}
-
-impl From<InterpFn<f32>> for InterpFunction {
-    fn from(val: InterpFn<f32>) -> InterpFunction {
-        InterpFunction::F32(val)
-    }
-}
+pub use formatter::*;
+pub use interp::{InterpFnFactory, Interpolation};
+pub use mpe::MultiProcessElement;
+pub use mutex::{
+    CreateMutexFn, DestroyMutexFn, IMutex, LockMutexFn, Mutex, MutexGuard, UnlockMutexFn,
+};
+pub use optimization::{Optimization, OptimizationFn};
+pub use parallel::Parallelization;
+pub use parametric_curve::{ParametricCurve, ParametricCurveEvaluator};
+pub use rendering_intent::{IntentFn, RenderingIntent};
+pub use tag::{Tag, TagDescriptor};
+pub use tag_type::{TagType, TagTypeHandler};
+pub use transform::{Transform, TransformFactories};

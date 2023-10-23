@@ -1,4 +1,4 @@
-use crate::S15Fixed16Number;
+use crate::S15F16;
 
 pub struct XYZ {
     pub x: f64,
@@ -7,9 +7,9 @@ pub struct XYZ {
 }
 
 pub struct EncodedXYZ {
-    pub x: S15Fixed16Number,
-    pub y: S15Fixed16Number,
-    pub z: S15Fixed16Number,
+    pub x: S15F16,
+    pub y: S15F16,
+    pub z: S15F16,
 }
 
 pub struct XYZTriple {

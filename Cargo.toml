@@ -13,3 +13,6 @@ crate-type = ["rlib"]
 bitfield = "0.14.0"
 log = "0.4.20"
 pool = "0.1.4"
+byteorder = "1.5.0"
+encoding_rs = "0.8.33"
+codepage = "0.1.1"

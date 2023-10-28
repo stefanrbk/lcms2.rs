@@ -1,7 +1,7 @@
 use super::{ToneCurve, MLU};
 
-pub struct UcrBg {
+pub struct UcrBg<'a> {
     pub ucr: ToneCurve,
     pub bg: ToneCurve,
-    pub desc: MLU,
+    pub desc: Box<MLU<'a>>,
 }

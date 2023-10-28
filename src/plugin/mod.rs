@@ -13,6 +13,7 @@ pub struct Base {
     pub r#type: Signature,
 }
 
+pub(crate) mod bit_converter;
 mod formatter;
 mod interp;
 mod mpe;

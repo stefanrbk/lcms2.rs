@@ -11,6 +11,7 @@ mod lch;
 mod mat3;
 mod measurement_conditions;
 mod mlu;
+mod named_color;
 mod pipeline;
 pub mod profile;
 mod profile_id;
@@ -40,6 +41,7 @@ pub use lch::LCh;
 pub use mat3::Mat3;
 pub use measurement_conditions::MeasurementConditions;
 pub use mlu::MLU;
+pub use named_color::{NamedColor, NamedColorEntry};
 pub use pipeline::Eval16Fn as PipelineEval16Fn;
 pub use pipeline::EvalFloatFn as PipelineEvalFloatFn;
 pub use pipeline::{

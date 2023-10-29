@@ -13,3 +13,5 @@ pub const MAX_STAGE_CHANNELS: u32 = 128;
 pub const MATRIX_DET_TOLERANCE: f64 = 1e-4;
 
 pub(crate) const MAX_TABLE_TAG: usize = 100;
+
+pub(crate) const FLAGS_CAN_CHANGE_FORMATTER: u32 = 0x02000000;

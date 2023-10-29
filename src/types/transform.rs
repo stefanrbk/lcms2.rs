@@ -1,4 +1,4 @@
-use crate::plugin::FreeUserDataFn;
+use crate::{plugin::FreeUserDataFn, MAX_CHANNELS};
 use std::any::Any;
 
 use super::Pipeline;
@@ -13,8 +13,8 @@ pub type Transform2Fn = fn(
     line_count: u32,
     stride: Stride,
 );
-pub type TransformFactory = fn(
-    lut: &Pipeline,
+pub type TransformFactory = for<'a, 'b, 'c, 'd> fn(
+    lut: &'a Pipeline<'b, 'c, 'd>,
     input_format: u32,
     output_format: u32,
     flags: u32,
@@ -23,15 +23,15 @@ pub type TransformFactory = fn(
         TransformFn,
         Option<Box<dyn Any>>,
         Option<FreeUserDataFn>,
-        &Pipeline,
+        &'a Pipeline<'b, 'c, 'd>,
         u32,
         u32,
         u32,
     ),
     &'static str,
 >;
-pub type Transform2Factory = fn(
-    lut: &Pipeline,
+pub type Transform2Factory = for<'a, 'b, 'c, 'd> fn(
+    lut: &'a Pipeline<'b, 'c, 'd>,
     input_format: u32,
     output_format: u32,
     flags: u32,
@@ -40,7 +40,7 @@ pub type Transform2Factory = fn(
         Transform2Fn,
         Option<Box<dyn Any>>,
         Option<FreeUserDataFn>,
-        &Pipeline,
+        &'a Pipeline<'b, 'c, 'd>,
         u32,
         u32,
         u32,
@@ -62,4 +62,9 @@ pub struct Stride {
 
 pub struct Transform {
     pub(crate) context_id: crate::Context,
+}
+
+pub(crate) struct Cache {
+    pub r#in: [u16; MAX_CHANNELS as usize],
+    pub out: [u16; MAX_CHANNELS as usize],
 }

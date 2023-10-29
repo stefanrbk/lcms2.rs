@@ -11,10 +11,11 @@ pub struct TagTypeHandler {
         io: &IoHandler,
         n_items: &mut u32,
         size_of_tag: u32,
-    ) -> Result<Box<dyn Any>, &'static str>,
+    ) -> Result<Box<dyn Any>, String>,
     pub write:
         fn(handler: &TagTypeHandler, io: &IoHandler, ptr: Box<dyn Any>, n_items: u32) -> bool,
-    pub dup: fn(handler: &TagTypeHandler, ptr: &Box<dyn Any>, n: u32) -> Result<Box<dyn Any>, &'static str>,
+    pub dup:
+        fn(handler: &TagTypeHandler, ptr: &Box<dyn Any>, n: u32) -> Result<Box<dyn Any>, String>,
     pub free: fn(handler: &TagTypeHandler, ptr: Box<dyn Any>),
     pub context_id: crate::Context,
     pub icc_version: u32,

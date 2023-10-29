@@ -13,8 +13,8 @@ pub struct PSeqDesc<'a> {
     pub description: Box<MLU<'a>>,
 }
 
-pub struct Seq<'a> {
+pub struct Seq<'ctx, 'a> {
     pub n: u32,
-    pub context_id: &'a Context,
+    pub context_id: &'ctx Context,
     pub seq: PSeqDesc<'a>,
 }

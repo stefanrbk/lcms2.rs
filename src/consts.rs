@@ -1,7 +1,5 @@
 use std::mem::size_of;
 
-use crate::S15F16;
-
 pub const PTR_ALIGNMENT: usize = size_of::<usize>();
 
 pub const MAX_ENCODEABLE_XYZ: f64 = 1.0 + 32767.0 / 32768.0;

@@ -13,7 +13,6 @@ pub struct Base {
     pub r#type: Signature,
 }
 
-pub(crate) mod bit_converter;
 mod formatter;
 mod interp;
 mod mpe;
@@ -25,6 +24,7 @@ mod rendering_intent;
 mod tag;
 mod tag_type;
 mod transform;
+mod functions;
 
 pub use formatter::*;
 pub use interp::{InterpFnFactory, Interpolation};
@@ -39,3 +39,4 @@ pub use rendering_intent::{IntentFn, RenderingIntent};
 pub use tag::{Tag, TagDescriptor};
 pub use tag_type::{TagType, TagTypeHandler};
 pub use transform::{Transform, TransformFactories};
+pub(crate) use functions::*;

@@ -4,7 +4,7 @@ use std::mem::size_of;
 use codepage::to_encoding;
 use encoding_rs::mem::{convert_utf8_to_utf16, convert_utf16_to_utf8};
 
-use crate::{plugin::bit_converter::adjust_endianess16, Context};
+use crate::{plugin::adjust_endianess16, Context};
 
 use super::Dup;
 

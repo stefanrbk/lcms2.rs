@@ -26,9 +26,9 @@ pub struct Header {
     pub reserved: [i8; 28],
 }
 
-pub struct Profile<'ctx, 'io, 'mtx, 'a, 'b, 'c> {
+pub struct Profile<'ctx, 'mtx, 'a, 'b, 'c> {
     pub context_id: &'ctx Context,
-    pub io_handler: IoHandler<'io>,
+    pub io_handler: IoHandler<'ctx>,
     pub created: dt<Utc>,
 
     pub version: u32,

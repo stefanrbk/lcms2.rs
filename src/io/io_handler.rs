@@ -2,15 +2,15 @@ use crate::Context;
 
 use super::Stream;
 
-pub struct IoHandler<'a> {
-    pub stream: &'a dyn Stream,
-    pub context_id: Context,
-    pub used_space: u32,
-    pub reported_size: u32,
-    pub physical_file: &'a str,
-    pub read: fn(iohandler: &mut Self, buffer: &[u8], size: u32, count: u32) -> u32,
-    pub seek: fn(iohandler: &mut Self, offset: u32) -> bool,
+pub struct IoHandler<'ctx> {
+    pub stream: Box<dyn Stream>,
+    pub context_id: &'ctx Context,
+    pub used_space: usize,
+    pub reported_size: usize,
+    pub physical_file: String,
+    pub read: fn(iohandler: &mut Self, buffer: &mut [u8], size: usize, count: usize) -> usize,
+    pub seek: fn(iohandler: &mut Self, offset: usize) -> bool,
     pub close: fn(iohandler: &mut Self) -> bool,
-    pub tell: fn(iohandler: &mut Self) -> u32,
-    pub write: fn(iohandler: &mut Self, size: u32, buffer: &mut [u8]),
+    pub tell: fn(iohandler: &mut Self) -> usize,
+    pub write: fn(iohandler: &mut Self, size: usize, buffer: &[u8]) -> bool,
 }

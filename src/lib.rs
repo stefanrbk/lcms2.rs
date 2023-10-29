@@ -16,9 +16,14 @@ pub const MAX_TYPES_IN_PLUGIN: u32 = 20;
 const PI: f64 = 3.14159265358979323846;
 const LOG10E: f64 = 0.434294481903251827651;
 
-pub type S15F16 = i32;
-pub type U16Fixed16Number = u32;
-pub type U8Fixed8Number = u16;
+#[allow(non_camel_case_types)]
+pub type s15f16 = i32;
+#[allow(non_camel_case_types)]
+pub type u16f16 = u32;
+#[allow(non_camel_case_types)]
+pub type u8f8 = u16;
+
+pub type Result<T> = core::result::Result<T, String>;
 
 pub type Sampler16 = fn(In: &[u16], Out: &mut [u16], Cargo: &mut dyn Any) -> bool;
 pub type SamplerFloat = fn(In: &[f32], Out: &mut [f32], Cargo: &mut dyn Any) -> bool;

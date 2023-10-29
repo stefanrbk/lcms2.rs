@@ -1,8 +1,8 @@
-use std::{mem::size_of, ops::Shl};
+use std::mem::size_of;
 
 use crate::{
     plugin::{IMutex, MutexGuard},
-    PTR_ALIGNMENT, S15F16,
+    s15f16, PTR_ALIGNMENT,
 };
 
 #[inline]
@@ -25,27 +25,27 @@ pub const fn from_16_to_8(rgb: u16) -> u8 {
 }
 
 #[inline]
-pub const fn fixed_to_int(x: S15F16) -> i32 {
+pub const fn fixed_to_int(x: s15f16) -> i32 {
     x >> 16
 }
 
 #[inline]
-pub const fn fixed_rest_to_int(x: S15F16) -> i32 {
+pub const fn fixed_rest_to_int(x: s15f16) -> i32 {
     x & 0xFFFF
 }
 
 #[inline]
-pub const fn round_fixed_to_int(x: S15F16) -> i32 {
+pub const fn round_fixed_to_int(x: s15f16) -> i32 {
     (x + 0x8000) >> 16
 }
 
 #[inline]
-pub const fn to_fixed_domain(a: i32) -> S15F16 {
+pub const fn to_fixed_domain(a: i32) -> s15f16 {
     a + ((a + 0x7fff) / 0xffff)
 }
 
 #[inline]
-pub const fn from_fixed_domain(a: S15F16) -> i32 {
+pub const fn from_fixed_domain(a: s15f16) -> i32 {
     a - ((a + 0x7fff) >> 16)
 }
 

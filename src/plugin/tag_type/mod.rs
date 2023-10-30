@@ -35,6 +35,9 @@ mod functions;
 pub(crate) mod xyz;
 pub(crate) mod chromaticity;
 pub(crate) mod colorant_order_type;
+pub(crate) mod s15_fixed16;
+pub(crate) mod u16_fixed16;
+pub(crate) mod signature;
 
 pub(crate) use functions::*;
 
@@ -80,4 +83,7 @@ pub static SUPPORTED_TAG_TYPES: Lazy<Vec<TagTypeHandler>> = Lazy::new(|| vec![
     TypeHandler!(crate::sig::types::XYZ, xyz),
     TypeHandler!(crate::sig::types::CHROMATICITY, chromaticity),
     TypeHandler!(crate::sig::types::COLORANT_ORDER, colorant_order_type),
+    TypeHandler!(crate::sig::types::S15_FIXED16_ARRAY, s15_fixed16),
+    TypeHandler!(crate::sig::types::U16_FIXED16_ARRAY, u16_fixed16),
+    TypeHandler!(crate::sig::types::SIGNATURE, signature),
 ]) ;

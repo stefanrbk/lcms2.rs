@@ -1,6 +1,6 @@
 use std::{any::Any, mem::size_of};
 
-use crate::{io::IoHandler, Result, plugin::{read_u16, read_s15f16, write_s15f16, write_u16, read_u32, write_u32}, types::{XYY, XYYTriple}, MAX_CHANNELS};
+use crate::{io::IoHandler, Result, plugin::{read_u32, write_u32}, MAX_CHANNELS};
 
 use super::TagTypeHandler;
 

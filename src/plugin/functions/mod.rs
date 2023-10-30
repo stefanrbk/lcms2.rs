@@ -6,7 +6,7 @@ use crate::{
     io::IoHandler,
     s15f16,
     types::{DateTime, Signature, XYZ},
-    u8f8, Result,
+    u8f8, Result, u16f16,
 };
 
 #[inline]
@@ -106,6 +106,13 @@ pub fn read_s15f16(io: &mut IoHandler) -> Result<f64> {
     }
 }
 
+pub fn read_u16f16(io: &mut IoHandler) -> Result<f64> {
+    match read_u32(io) {
+        Ok(value) => Ok(u16_fixed16_to_f64(value)),
+        Err(_) => Err("Read error in read_u16f16".into()),
+    }
+}
+
 pub fn read_xyz(io: &mut IoHandler) -> Result<XYZ> {
     let x = read_s15f16(io);
     if x.is_err() {
@@ -193,6 +200,14 @@ pub fn write_s15f16(io: &mut IoHandler, n: f64) -> Result<()> {
     match write_u32(io, n) {
         Ok(_) => Ok(()),
         Err(_) => Err("Write error in write_s15f16".into()),
+    }
+}
+
+pub fn write_u16f16(io: &mut IoHandler, n: f64) -> Result<()> {
+    let n = f64_to_u16_fixed16(n);
+    match write_u32(io, n) {
+        Ok(_) => Ok(()),
+        Err(_) => Err("Write error in write_u16f16".into()),
     }
 }
 
@@ -294,8 +309,16 @@ pub fn s15_fixed16_to_f64(fix32: s15f16) -> f64 {
     floater * sign
 }
 
+pub fn u16_fixed16_to_f64(fix32: u16f16) -> f64 {
+    fix32 as f64 / 65536.0
+}
+
 pub fn f64_to_s15_fixed16(v: f64) -> s15f16 {
     f64::floor((v * 65536.0) + 0.5) as s15f16
+}
+
+pub fn f64_to_u16_fixed16(v: f64) -> u16f16 {
+    f64::floor((v * 65536.0) + 0.5) as u16f16
 }
 
 pub fn encode_date_time(source: dt<Utc>) -> DateTime {

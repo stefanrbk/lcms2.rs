@@ -1,14 +1,14 @@
-use std::mem::size_of;
+use std::{mem::size_of, sync::Arc};
 
 use codepage::to_encoding;
-use encoding_rs::mem::{convert_utf8_to_utf16, convert_utf16_to_utf8};
+use encoding_rs::mem::{convert_utf16_to_utf8, convert_utf8_to_utf16};
 
 use crate::{plugin::adjust_endianess16, Context};
 
 use super::Dup;
 
 pub struct MLU {
-    context_id: &'static Context,
+    context_id: Arc<Context>,
     allocated_entries: usize,
     used_entries: usize,
     entries: Vec<Entry>,
@@ -26,7 +26,7 @@ struct Entry {
 }
 
 impl<'a> MLU {
-    pub fn new(context_id: &'static Context, n_items: usize) -> MLU {
+    pub fn new(context_id: Arc<Context>, n_items: usize) -> MLU {
         MLU {
             context_id,
             allocated_entries: n_items,
@@ -188,7 +188,11 @@ impl<'a> MLU {
         drop(self);
     }
 
-    pub(crate) fn _get_wide(&'a self, lang_code: u16, cntr_code: u16) -> Option<(&'a [u16], u16, u16)> {
+    pub(crate) fn _get_wide(
+        &'a self,
+        lang_code: u16,
+        cntr_code: u16,
+    ) -> Option<(&'a [u16], u16, u16)> {
         let mlu = self;
 
         let mut best = -1;
@@ -227,7 +231,12 @@ impl<'a> MLU {
         ))
     }
 
-    pub fn get_ascii(&self, lang_code: [u8; 2], cntr_code: [u8; 2], buffer: &mut [u8]) -> Option<usize> {
+    pub fn get_ascii(
+        &self,
+        lang_code: [u8; 2],
+        cntr_code: [u8; 2],
+        buffer: &mut [u8],
+    ) -> Option<usize> {
         let lang = str_to_16(&lang_code);
         let cntr = str_to_16(&cntr_code);
         let buf_size = buffer.len();
@@ -243,7 +252,8 @@ impl<'a> MLU {
         let chars_written = convert_utf16_to_utf8(wide, &mut utf8_str);
 
         let encoding = to_encoding(437).unwrap();
-        let (ascii_str, _, _) = encoding.encode(std::str::from_utf8(&utf8_str[..chars_written]).unwrap());
+        let (ascii_str, _, _) =
+            encoding.encode(std::str::from_utf8(&utf8_str[..chars_written]).unwrap());
 
         let mut ascii_len = ascii_str.len();
 
@@ -261,7 +271,12 @@ impl<'a> MLU {
         Some(ascii_len)
     }
 
-    pub fn get_wide(&self, lang_code: [u8; 2], cntr_code: [u8; 2], buffer: &mut [u16]) -> Option<usize> {
+    pub fn get_wide(
+        &self,
+        lang_code: [u8; 2],
+        cntr_code: [u8; 2],
+        buffer: &mut [u16],
+    ) -> Option<usize> {
         let lang = str_to_16(&lang_code);
         let cntr = str_to_16(&cntr_code);
         let buf_size = buffer.len();
@@ -288,7 +303,11 @@ impl<'a> MLU {
         Some(wide_len)
     }
 
-    pub fn get_translation(&self, lang_code: [u8; 2], cntr_code: [u8; 2]) -> Option<([u8; 2], [u8; 2])> {
+    pub fn get_translation(
+        &self,
+        lang_code: [u8; 2],
+        cntr_code: [u8; 2],
+    ) -> Option<([u8; 2], [u8; 2])> {
         let mlu = self;
         let lang = str_to_16(&lang_code);
         let cntr = str_to_16(&cntr_code);
@@ -304,7 +323,7 @@ impl<'a> MLU {
 }
 
 impl Dup for MLU {
-    fn dup(&self, context_id: &'static Context) -> Result<Self, String>
+    fn dup(&self, context_id: Arc<Context>) -> Result<Self, String>
     where
         Self: Sized,
     {
@@ -332,7 +351,7 @@ impl Dup for MLU {
 
 impl<'a> Clone for MLU {
     fn clone(&self) -> Self {
-        match self.dup(self.context_id) {
+        match self.dup(self.context_id.clone()) {
             Ok(result) => result,
             Err(msg) => panic!("{}", msg),
         }

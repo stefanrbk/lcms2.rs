@@ -1,4 +1,4 @@
-use std::{any::Any, mem::size_of};
+use std::any::Any;
 
 use crate::{io::IoHandler, Result, plugin::{read_signature, write_signature}, types::Signature};
 

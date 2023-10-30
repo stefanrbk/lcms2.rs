@@ -6,8 +6,8 @@ pub struct NamedColorEntry {
     pub device_colorant: [u16; MAX_CHANNELS as usize],
 }
 
-pub struct NamedColor<'ctx> {
-    pub context_id: &'ctx Context,
+pub struct NamedColor {
+    pub context_id: &'static Context,
     pub n_colors: usize,
     pub allocated: usize,
     pub colorant_count: usize,

@@ -16,8 +16,8 @@ pub type Transform2Fn = fn(
     line_count: u32,
     stride: Stride,
 );
-pub type TransformFactory = for<'a, 'b, 'c, 'd> fn(
-    lut: &'a Pipeline<'b, 'c, 'd>,
+pub type TransformFactory = fn(
+    lut: &Pipeline,
     input_format: u32,
     output_format: u32,
     flags: u32,
@@ -26,15 +26,15 @@ pub type TransformFactory = for<'a, 'b, 'c, 'd> fn(
         TransformFn,
         Option<Box<dyn Any>>,
         Option<FreeUserDataFn>,
-        Box<Pipeline<'b, 'c, 'd>>,
+        Box<Pipeline>,
         u32,
         u32,
         u32,
     ),
     String,
 >;
-pub type Transform2Factory = for<'a, 'b, 'c, 'd> fn(
-    lut: &'a Pipeline<'b, 'c, 'd>,
+pub type Transform2Factory = fn(
+    lut: &Pipeline,
     input_format: u32,
     output_format: u32,
     flags: u32,
@@ -43,7 +43,7 @@ pub type Transform2Factory = for<'a, 'b, 'c, 'd> fn(
         Transform2Fn,
         Option<Box<dyn Any>>,
         Option<FreeUserDataFn>,
-        Box<Pipeline<'b, 'c, 'd>>,
+        Box<Pipeline>,
         u32,
         u32,
         u32,
@@ -63,7 +63,7 @@ pub struct Stride {
     pub bytes_per_plane_out: u32,
 }
 
-pub struct Transform<'ctx, 'dat, 'a> {
+pub struct Transform {
     pub(crate) input_format: Format,
     pub(crate) output_format: Format,
 
@@ -77,12 +77,12 @@ pub struct Transform<'ctx, 'dat, 'a> {
 
     pub(crate) cache: Cache,
 
-    pub(crate) lut: Box<Pipeline<'ctx, 'dat, 'a>>,
+    pub(crate) lut: Box<Pipeline>,
 
-    pub(crate) gamut_check: Box<Pipeline<'ctx, 'dat, 'a>>,
+    pub(crate) gamut_check: Box<Pipeline>,
 
-    pub(crate) input_colorant: NamedColor<'ctx>,
-    pub(crate) output_colorant: NamedColor<'ctx>,
+    pub(crate) input_colorant: NamedColor,
+    pub(crate) output_colorant: NamedColor,
 
     pub(crate) entry_color_space: Signature,
     pub(crate) exit_color_space: Signature,
@@ -90,14 +90,14 @@ pub struct Transform<'ctx, 'dat, 'a> {
     pub(crate) entry_white_point: XYZ,
     pub(crate) exit_white_point: XYZ,
 
-    pub(crate) sequence: Seq<'ctx, 'a>,
+    pub(crate) sequence: Seq,
 
     pub(crate) original_flags: u32,
     pub(crate) adaptation_stage: f64,
 
     pub(crate) rendering_intent: u32,
 
-    pub(crate) context_id: &'ctx crate::Context,
+    pub(crate) context_id: &'static crate::Context,
 
     pub(crate) user_data: Option<Box<dyn Any>>,
     pub(crate) free_user_data: FreeUserDataFn,

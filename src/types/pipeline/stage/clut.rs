@@ -2,21 +2,21 @@ use std::any::TypeId;
 
 use crate::types::InterpParams;
 
-pub struct CLutData<'a, T>
+pub struct CLutData<T>
 where
     T: 'static,
 {
-    pub table: Tab<'a>,
-    pub params: &'a [InterpParams<T>],
+    pub table: Tab,
+    pub params: Box<[InterpParams<T>]>,
     pub n_entries: u32,
 }
 
-pub enum Tab<'a> {
-    T(&'a [u16]),
-    TFloat(&'a [f32]),
+pub enum Tab {
+    T(Box<[u16]>),
+    TFloat(Box<[f32]>),
 }
 
-impl<'a, T: 'static> CLutData<'a, T> {
+impl<T: 'static> CLutData<T> {
     pub fn has_float_values() -> bool {
         TypeId::of::<T>() == TypeId::of::<f32>()
     }

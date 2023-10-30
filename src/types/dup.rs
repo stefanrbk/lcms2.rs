@@ -1,7 +1,7 @@
 use crate::Context;
 
-pub trait Dup<'a, 'b: 'a> {
-    fn dup(&self, context_id: &'b Context) -> Result<Self, String>
+pub trait Dup {
+    fn dup(&self, context_id: &'static Context) -> Result<Self, String>
     where
         Self: Sized;
 }

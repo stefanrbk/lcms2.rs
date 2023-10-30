@@ -1,7 +1,7 @@
 use crate::{Context, MAX_INPUT_DIMENSIONS};
 
 pub struct InterpParams<T> {
-    pub context: Context,
+    pub context: &'static Context,
     pub flags: u32,
     pub n_outputs: u32,
     pub n_samples: [u32; MAX_INPUT_DIMENSIONS as usize],

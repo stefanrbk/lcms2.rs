@@ -2,9 +2,9 @@ use crate::Context;
 
 use super::Stream;
 
-pub struct IoHandler<'ctx> {
+pub struct IoHandler {
     pub stream: Box<dyn Stream>,
-    pub context_id: &'ctx Context,
+    pub context_id: &'static Context,
     pub used_space: usize,
     pub reported_size: usize,
     pub physical_file: String,

@@ -26,9 +26,9 @@ pub struct Header {
     pub reserved: [i8; 28],
 }
 
-pub struct Profile<'ctx, 'mtx, 'a, 'b, 'c> {
-    pub context_id: &'ctx Context,
-    pub io_handler: IoHandler<'ctx>,
+pub struct Profile<'mtx, 'a, 'b> {
+    pub context_id: &'static Context,
+    pub io_handler: IoHandler,
     pub created: dt<Utc>,
 
     pub version: u32,
@@ -45,21 +45,21 @@ pub struct Profile<'ctx, 'mtx, 'a, 'b, 'c> {
 
     pub profile_id: ProfileID,
 
-    pub tags: Vec<TagEntry<'b, 'c>>,
+    pub tags: Vec<TagEntry<'b>>,
     
     pub is_write: bool,
 
     pub user_mutex: Option<&'mtx dyn IMutex<'a>>,
 }
 
-pub struct TagEntry<'a, 'b> {
+pub struct TagEntry<'a> {
     pub name: Signature,
     pub linked: Option<Signature>,
     pub size: usize,
     pub offset: usize,
     pub save_as_raw: bool,
-    pub tag_object: Option<&'a dyn Any>,
-    pub type_handler: &'b TagTypeHandler
+    pub tag_object: Option<Box<dyn Any>>,
+    pub type_handler: &'a TagTypeHandler
 }
 
 pub mod data_access {

@@ -1,9 +1,9 @@
 pub type StageEvalFn = fn(In: &[f32], Out: &mut [f32], mpe: &Stage);
-pub type StageDupElemFn = for<'a, 'b, 'c> fn(mpe: &'c Stage<'a, 'b>) -> Result<Stage<'a, 'b>, String>;
+pub type StageDupElemFn = fn(mpe: &Stage) -> Result<Stage, String>;
 pub type StageFreeElemFn = fn(mpe: Stage);
 
-pub struct Stage<'ctx, 'dat> {
-    pub(crate) context_id: &'ctx crate::Context,
+pub struct Stage {
+    pub(crate) context_id: &'static crate::Context,
 
     pub(crate) r#type: Signature,
     pub(crate) implements: Signature,
@@ -15,9 +15,9 @@ pub struct Stage<'ctx, 'dat> {
     pub(crate) dup_elem_ptr: StageDupElemFn,
     pub(crate) free_ptr: StageFreeElemFn,
 
-    pub(crate) data: &'dat dyn Any,
+    pub(crate) data: Box<dyn Any>,
 
-    pub(crate) next: list::Link<Stage<'ctx, 'dat>>,
+    pub(crate) next: list::Link<Stage>,
 }
 
 mod tone_curve;

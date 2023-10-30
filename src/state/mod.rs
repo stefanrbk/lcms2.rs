@@ -1,6 +1,14 @@
 use std::any::Any;
 
-use crate::{MAX_CHANNELS, plugin::{InterpFnFactory, ParametricCurve, FormatterFactoryIn, FormatterFactoryOut, TagTypeHandler, TagDescriptor, IntentFn, OptimizationFn, CreateMutexFn, DestroyMutexFn, LockMutexFn, UnlockMutexFn}, types::{Signature, TransformFunc, Transform2Fn}};
+use crate::{
+    plugin::{
+        CreateMutexFn, DestroyMutexFn, FormatterFactoryIn, FormatterFactoryOut, IntentFn,
+        InterpFnFactory, LockMutexFn, OptimizationFn, ParametricCurve, TagDescriptor,
+        TagTypeHandler, UnlockMutexFn,
+    },
+    types::{Signature, Transform2Fn, TransformFunc},
+    MAX_CHANNELS,
+};
 
 pub struct ContextStruct {
     pub(crate) alarm_codes: [u16; MAX_CHANNELS as usize],
@@ -15,7 +23,7 @@ pub struct ContextStruct {
     pub(crate) optimizations: Vec<OptimizationFn>,
     pub(crate) transforms: Vec<TransformFunc>,
     pub(crate) mutex: MutexFunctions,
-    pub(crate) user_data: Box<dyn Any>,
+    pub(crate) user_data: Box<dyn Any + Sync + Send>,
 }
 
 pub struct Tag {

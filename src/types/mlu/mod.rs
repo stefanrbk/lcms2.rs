@@ -1,4 +1,3 @@
-use core::slice;
 use std::mem::size_of;
 
 use codepage::to_encoding;
@@ -8,8 +7,8 @@ use crate::{plugin::adjust_endianess16, Context};
 
 use super::Dup;
 
-pub struct MLU<'a> {
-    context_id: &'a Context,
+pub struct MLU {
+    context_id: &'static Context,
     allocated_entries: usize,
     used_entries: usize,
     entries: Vec<Entry>,
@@ -26,8 +25,8 @@ struct Entry {
     pub len: usize,
 }
 
-impl<'a> MLU<'a> {
-    pub fn new(context_id: &Context, n_items: usize) -> MLU {
+impl<'a> MLU {
+    pub fn new(context_id: &'static Context, n_items: usize) -> MLU {
         MLU {
             context_id,
             allocated_entries: n_items,
@@ -304,8 +303,8 @@ impl<'a> MLU<'a> {
     }
 }
 
-impl<'a, 'b: 'a> Dup<'a, 'b> for MLU<'a> {
-    fn dup(&self, context_id: &'b Context) -> Result<Self, String>
+impl Dup for MLU {
+    fn dup(&self, context_id: &'static Context) -> Result<Self, String>
     where
         Self: Sized,
     {
@@ -331,7 +330,7 @@ impl<'a, 'b: 'a> Dup<'a, 'b> for MLU<'a> {
     }
 }
 
-impl<'a> Clone for MLU<'a> {
+impl<'a> Clone for MLU {
     fn clone(&self) -> Self {
         match self.dup(self.context_id) {
             Ok(result) => result,

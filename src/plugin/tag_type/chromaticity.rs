@@ -1,0 +1,64 @@
+use std::any::Any;
+
+use crate::{io::IoHandler, Result, plugin::{read_u16, read_s15f16, write_s15f16, write_u16}, types::{XYY, XYYTriple}};
+
+use super::TagTypeHandler;
+
+pub fn type_chromaticity_read(_handler: &TagTypeHandler, io: &mut IoHandler, n_items: &mut usize, size_of_tag: usize) ->Result<Box<dyn Any>> {
+    *n_items = 0;
+
+    let mut n_chans = read_u16(io)?;
+
+    // Let's recover from a bug introduced in early versions of lcms1
+    if n_chans == 0 && size_of_tag == 32 {
+        read_u16(io)?;
+        n_chans = read_u16(io)?;
+    }
+
+    if n_chans != 3 {
+        return Err("Invalid number of channels in type_chromaticity_read".into());
+    }
+
+    let chrm = XYYTriple {
+        red: XYY { x: read_s15f16(io)?, y: read_s15f16(io)?, y_lum: 1.0 },
+        green: XYY { x: read_s15f16(io)?, y: read_s15f16(io)?, y_lum: 1.0 },
+        blue: XYY { x: read_s15f16(io)?, y: read_s15f16(io)?, y_lum: 1.0 },
+    };
+
+    *n_items = 1;
+    Ok(Box::new(chrm))
+}
+
+fn save_one_chromaticity(x: f64, y: f64, io: &mut IoHandler) -> Result<()> {
+    write_s15f16(io, x)?;
+    write_s15f16(io, y)?;
+
+    Ok(())
+}
+
+pub fn type_chromaticity_write(_handler: &TagTypeHandler, io: &mut IoHandler, ptr: &dyn Any, _n_items: usize) -> Result<()> {
+    match ptr.downcast_ref::<XYYTriple>() {
+        None => Err("Invalid object to write with type_chromaticity_write".into()),
+        Some(chrm) => {
+            write_u16(io, 3)?;
+            write_u16(io, 0)?;
+
+            save_one_chromaticity(chrm.red.x, chrm.red.y, io)?;
+            save_one_chromaticity(chrm.green.x, chrm.green.y, io)?;
+            save_one_chromaticity(chrm.blue.x, chrm.blue.y, io)?;
+
+            Ok(())
+        },
+    }
+}
+
+pub fn type_chromaticity_dup(_handler: &TagTypeHandler, ptr: &dyn Any, _n_items: usize) -> Result<Box<dyn Any>> {
+    match ptr.downcast_ref::<XYYTriple>() {
+        None => Err("Invalid object to duplicate with type_chromaticity_dup".into()),
+        Some(chrm) => Ok(Box::new(*chrm)),
+    }
+}
+
+pub fn type_chromaticity_free(_handler: &TagTypeHandler, ptr: Box<dyn Any>) {
+    drop(ptr);
+}

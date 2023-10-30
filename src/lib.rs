@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::{any::Any, sync::Arc};
 
 /// Maximum number of channels in ICC profiles
 pub const MAX_CHANNELS: u32 = 16;
@@ -16,6 +16,22 @@ pub const MAX_TYPES_IN_PLUGIN: u32 = 20;
 const PI: f64 = 3.14159265358979323846;
 const LOG10E: f64 = 0.434294481903251827651;
 
+pub const DEFAULT_CONTEXT: Arc<Context> = Arc::new(Context {
+    alarm_codes: todo!(),
+    adaptation_state: todo!(),
+    interpolator: todo!(),
+    curves: todo!(),
+    formatters: todo!(),
+    tag_types: todo!(),
+    mpe_types: todo!(),
+    tags: todo!(),
+    intents: todo!(),
+    optimizations: todo!(),
+    transforms: todo!(),
+    mutex: todo!(),
+    user_data: todo!(),
+});
+
 #[allow(non_camel_case_types)]
 pub type s15f16 = i32;
 #[allow(non_camel_case_types)]
@@ -27,7 +43,16 @@ pub type Result<T> = core::result::Result<T, String>;
 
 pub type Sampler16 = fn(In: &[u16], Out: &mut [u16], Cargo: &mut dyn Any) -> bool;
 pub type SamplerFloat = fn(In: &[f32], Out: &mut [f32], Cargo: &mut dyn Any) -> bool;
+pub(crate) type PositionTableEntryFn = fn(
+    handler: &TagTypeHandler,
+    io: &mut IoHandler,
+    cargo: &dyn Any,
+    n: usize,
+    size_of_tag: usize,
+) -> Result<()>;
 
+use io::IoHandler;
+use plugin::TagTypeHandler;
 pub use state::ContextStruct as Context;
 
 mod consts;

@@ -1290,10 +1290,10 @@ pub use types::profile::r#use::AS_PROOF as LCMS_USED_AS_PROOF;
 // CMSAPI cmsUInt32Number   CMSEXPORT cmsFormatterForPCSOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, cmsBool lIsFloat);
 
 // Localized info
+pub use types::profile::info_type::COPYRIGHT as INFO_COPYRIGHT;
 pub use types::profile::info_type::DESCRIPTION as INFO_DESCRIPTION;
 pub use types::profile::info_type::MANUFACTURER as INFO_MANUFACTURER;
 pub use types::profile::info_type::MODEL as INFO_MODEL;
-pub use types::profile::info_type::COPYRIGHT as INFO_COPYRIGHT;
 
 // CMSAPI cmsUInt32Number   CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
 //                                                             const char LanguageCode[3], const char CountryCode[3],
@@ -1402,10 +1402,10 @@ pub use types::profile::info_type::COPYRIGHT as INFO_COPYRIGHT;
 // Intents ----------------------------------------------------------------------------------------------
 
 // // ICC Intents
+pub use crate::intent::ABSOLUTE_COLORIMETRIC as INTENT_ABSOLUTE_COLORIMETRIC;
 pub use crate::intent::PERCEPTUAL as INTENT_PERCEPTUAL;
 pub use crate::intent::RELATIVE_COLORIMETRIC as INTENT_RELATIVE_COLORIMETRIC;
 pub use crate::intent::SATURATION as INTENT_SATURATION;
-pub use crate::intent::ABSOLUTE_COLORIMETRIC as INTENT_ABSOLUTE_COLORIMETRIC;
 
 // // Non-ICC intents
 pub use crate::intent::PRESERVE_K_ONLY_PERCEPTUAL as INTENT_PRESERVE_K_ONLY_PERCEPTUAL;
@@ -1421,41 +1421,41 @@ pub use crate::intent::PRESERVE_K_PLANE_SATURATION as INTENT_PRESERVE_K_PLANE_SA
 
 // Flags
 
-pub use crate::flags::FLAGS_NOCACHE as FLAGS_NOCACHE;
-pub use crate::flags::FLAGS_NOOPTIMIZE as FLAGS_NOOPTIMIZE;
-pub use crate::flags::FLAGS_NULLTRANSFORM as FLAGS_NULLTRANSFORM;
+pub use crate::flags::FLAGS_NOCACHE;
+pub use crate::flags::FLAGS_NOOPTIMIZE;
+pub use crate::flags::FLAGS_NULLTRANSFORM;
 
 // Proofing flags
-pub use crate::flags::FLAGS_GAMUTCHECK as FLAGS_GAMUTCHECK;
-pub use crate::flags::FLAGS_SOFTPROOFING as FLAGS_SOFTPROOFING;
+pub use crate::flags::FLAGS_GAMUTCHECK;
+pub use crate::flags::FLAGS_SOFTPROOFING;
 
 // Misc
-pub use crate::flags::FLAGS_BLACKPOINTCOMPENSATION as FLAGS_BLACKPOINTCOMPENSATION;
-pub use crate::flags::FLAGS_NOWHITEONWHITEFIXUP as FLAGS_NOWHITEONWHITEFIXUP;
-pub use crate::flags::FLAGS_HIGHRESPRECALC as FLAGS_HIGHRESPRECALC;
-pub use crate::flags::FLAGS_LOWRESPRECALC as FLAGS_LOWRESPRECALC;
+pub use crate::flags::FLAGS_BLACKPOINTCOMPENSATION;
+pub use crate::flags::FLAGS_HIGHRESPRECALC;
+pub use crate::flags::FLAGS_LOWRESPRECALC;
+pub use crate::flags::FLAGS_NOWHITEONWHITEFIXUP;
 
 // For devicelink creation
-pub use crate::flags::FLAGS_8BITS_DEVICELINK as FLAGS_8BITS_DEVICELINK;
-pub use crate::flags::FLAGS_GUESSDEVICECLASS as FLAGS_GUESSDEVICECLASS;
-pub use crate::flags::FLAGS_KEEP_SEQUENCE as FLAGS_KEEP_SEQUENCE;
+pub use crate::flags::FLAGS_8BITS_DEVICELINK;
+pub use crate::flags::FLAGS_GUESSDEVICECLASS;
+pub use crate::flags::FLAGS_KEEP_SEQUENCE;
 
 // Specific to a particular optimizations
-pub use crate::flags::FLAGS_FORCE_CLUT as FLAGS_FORCE_CLUT;
-pub use crate::flags::FLAGS_CLUT_POST_LINEARIZATION as FLAGS_CLUT_POST_LINEARIZATION;
-pub use crate::flags::FLAGS_CLUT_PRE_LINEARIZATION as FLAGS_CLUT_PRE_LINEARIZATION;
+pub use crate::flags::FLAGS_CLUT_POST_LINEARIZATION;
+pub use crate::flags::FLAGS_CLUT_PRE_LINEARIZATION;
+pub use crate::flags::FLAGS_FORCE_CLUT;
 
 // Specific to unbounded mode
-pub use crate::flags::FLAGS_NONEGATIVES as FLAGS_NONEGATIVES;
+pub use crate::flags::FLAGS_NONEGATIVES;
 
 // Copy alpha channels when transforming
-pub use crate::flags::FLAGS_COPY_ALPHA as FLAGS_COPY_ALPHA;
+pub use crate::flags::FLAGS_COPY_ALPHA;
 
 // Fine-tune control over number of gridpoints
 pub use crate::flags::GRIDPOINTS as FLAGS_GRIDPOINTS;
 
 // CRD special
-pub use crate::flags::FLAGS_NODEFAULTRESOURCEDEF as FLAGS_NODEFAULTRESOURCEDEF;
+pub use crate::flags::FLAGS_NODEFAULTRESOURCEDEF;
 
 // Transforms ---------------------------------------------------------------------------------------------------
 

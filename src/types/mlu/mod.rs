@@ -8,7 +8,7 @@ use crate::{plugin::adjust_endianess16, Context};
 use super::Dup;
 
 pub struct MLU {
-    context_id: Arc<Context>,
+    context_id: Context,
     allocated_entries: usize,
     used_entries: usize,
     entries: Vec<Entry>,
@@ -26,7 +26,7 @@ struct Entry {
 }
 
 impl<'a> MLU {
-    pub fn new(context_id: &Arc<Context>, n_items: usize) -> MLU {
+    pub fn new(context_id: &Context, n_items: usize) -> MLU {
         MLU {
             context_id: context_id.clone(),
             allocated_entries: n_items,
@@ -299,7 +299,7 @@ impl<'a> MLU {
 }
 
 impl Dup for MLU {
-    fn dup(&self, context_id: &Arc<Context>) -> Result<Self, String>
+    fn dup(&self, context_id: &Context) -> Result<Self, String>
     where
         Self: Sized,
     {

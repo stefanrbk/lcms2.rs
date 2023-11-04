@@ -2,6 +2,7 @@
 #![cfg_attr(debug_assertions, allow(unused_imports))]
 #![cfg_attr(debug_assertions, allow(dead_code))]
 
+use state::ContextStruct;
 use std::{any::Any, sync::Arc};
 
 /// Maximum number of channels in ICC profiles
@@ -20,7 +21,7 @@ pub const MAX_TYPES_IN_PLUGIN: u32 = 20;
 const PI: f64 = 3.14159265358979323846;
 const LOG10E: f64 = 0.434294481903251827651;
 
-pub const DEFAULT_CONTEXT: Arc<Context> = Arc::new(Context {
+pub const DEFAULT_CONTEXT: Context = todo!() /* Arc::new(ContextStruct {
     alarm_codes: todo!(),
     adaptation_state: todo!(),
     interpolator: todo!(),
@@ -34,7 +35,7 @@ pub const DEFAULT_CONTEXT: Arc<Context> = Arc::new(Context {
     transforms: todo!(),
     mutex: todo!(),
     user_data: todo!(),
-});
+})*/;
 
 #[allow(non_camel_case_types)]
 pub type s15f16 = i32;
@@ -57,14 +58,15 @@ pub(crate) type PositionTableEntryFn = fn(
 
 use io::IoHandler;
 use plugin::TagTypeHandler;
-pub use state::ContextStruct as Context;
+pub type Context = Arc<state::ContextStruct>;
 
 mod consts;
 mod inlines;
 pub(crate) use consts::*;
 pub(crate) use inlines::*;
 
-//pub mod cms;
+/*pub*/
+mod cms;
 pub mod io;
 pub mod list;
 pub mod plugin;

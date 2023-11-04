@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use paste::paste;
 use std::{any::Any, sync::Arc};
 
-use crate::{io::IoHandler, sig, types::Signature, Result};
+use crate::{io::IoHandler, sig, types::Signature, Result, Context};
 
 use super::Base;
 
@@ -22,7 +22,7 @@ pub struct TagTypeHandler {
     ) -> Result<()>,
     pub dup: fn(handler: &TagTypeHandler, ptr: &dyn Any, n: usize) -> Result<Box<dyn Any>>,
     pub free: fn(handler: &TagTypeHandler, ptr: Box<dyn Any>),
-    pub context_id: Arc<crate::Context>,
+    pub context_id: Context,
     pub icc_version: u32,
 }
 

@@ -1,9 +1,9 @@
 use std::any::Any;
 
-use crate::types::Signature;
+use crate::{types::{Signature, Dup}, Context};
 
-pub type FreeUserDataFn = fn(context_id: crate::Context, Box<dyn Any>);
-pub type DupUserDataFn = fn(contect_id: crate::Context, Box<&dyn Any>) -> Box<dyn Any>;
+pub type FreeUserDataFn = fn(context_id: Context, Box<dyn Any>);
+pub type DupUserDataFn = fn(contect_id: Context, Box<&dyn Any>) -> Box<dyn Any>;
 
 pub const GUESS_MAX_WORKERS: i32 = -1;
 

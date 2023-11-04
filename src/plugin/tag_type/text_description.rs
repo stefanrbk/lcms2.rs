@@ -57,7 +57,7 @@ pub fn type_text_description_read(
         // Unicode code
         return Ok(Box::new(mlu));
     }
-    let unicode_count = match read_u32(io) {
+    let _unicode_count = match read_u32(io) {
         Ok(value) => value,
         Err(_) => {
             return Ok(Box::new(mlu));
@@ -79,7 +79,7 @@ pub fn type_text_description_read(
         }
         // Skip rest of tag
         let mut dummy = [0u8];
-        for i in 0..67 {
+        for _i in 0..67 {
             if (io.read)(io, &mut dummy, size_of::<u8>(), 1) != size_of::<u8>() {
                 return Ok(Box::new(mlu));
             }

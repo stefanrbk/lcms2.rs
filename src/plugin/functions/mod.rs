@@ -265,7 +265,7 @@ pub fn read_alignment(io: &mut IoHandler) -> Result<()> {
 }
 
 pub fn write_alignment(io: &mut IoHandler) -> Result<()> {
-    let mut buffer = [0u8; 4];
+    let buffer = [0u8; 4];
 
     let at = (io.tell)(io);
     let next_aligned = align_long(at);

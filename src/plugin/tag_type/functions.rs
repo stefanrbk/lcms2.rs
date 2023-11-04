@@ -18,8 +18,6 @@ pub fn write_utf16_slice(io: &mut IoHandler, slice: &[u16]) -> Result<()> {
 }
 
 pub fn read_utf16_slice<'a>(io: &mut IoHandler, slice: &'a mut [u16]) -> Result<&'a [u16]> {
-    let mut buf = [0u8; size_of::<u16>()];
-
     for n in &mut *slice {
         match read_u16(io) {
             Err(_) => return Err("Error in read_utf16_slice".into()),
@@ -77,7 +75,7 @@ pub fn read_position_table(
 pub fn write_position_table(
     handler: &TagTypeHandler,
     io: &mut IoHandler,
-    size_of_tag: usize,
+    _size_of_tag: usize,
     count: usize,
     base_offset: usize,
     cargo: &dyn Any,
@@ -91,7 +89,7 @@ pub fn write_position_table(
     let directory_pos = (io.tell)(io);
 
     // Write a fake directory to be filled later on
-    for i in 0..count {
+    for _i in 0..count {
         if write_u32(io, 0u32).is_err()
             || write_u32(io, 0u32).is_err() {
             return Err("Write error in write_position_table".into());

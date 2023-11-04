@@ -11,7 +11,7 @@ use crate::{
 use super::TagTypeHandler;
 
 pub fn type_data_read(
-    handler: &TagTypeHandler,
+    _handler: &TagTypeHandler,
     io: &mut IoHandler,
     n_items: &mut usize,
     size_of_tag: usize,

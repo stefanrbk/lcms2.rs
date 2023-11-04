@@ -1,3 +1,7 @@
+#![cfg_attr(debug_assertions, allow(unused_macros))]
+#![cfg_attr(debug_assertions, allow(unused_imports))]
+#![cfg_attr(debug_assertions, allow(dead_code))]
+
 use std::{any::Any, sync::Arc};
 
 /// Maximum number of channels in ICC profiles

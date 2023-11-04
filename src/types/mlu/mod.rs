@@ -156,7 +156,6 @@ impl<'a> MLU {
         cntr_code: [u8; 2],
         wide_str: &[u16],
     ) -> Result<(), String> {
-        let len = wide_str.len();
         let lang = str_to_16(&lang_code);
         let cntr = str_to_16(&cntr_code);
 

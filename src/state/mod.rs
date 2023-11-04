@@ -7,8 +7,13 @@ use crate::{
         TagTypeHandler, UnlockMutexFn,
     },
     types::{Signature, Transform2Fn, TransformFunc},
-    MAX_CHANNELS,
+    ErrorHandlerLogFunction, MAX_CHANNELS,
 };
+
+mod error;
+pub mod plugin;
+
+pub use error::{default_error_handler_log_function, ErrorCode};
 
 pub struct ContextStruct {
     pub(crate) alarm_codes: [u16; MAX_CHANNELS as usize],
@@ -24,6 +29,7 @@ pub struct ContextStruct {
     pub(crate) transforms: Vec<TransformFunc>,
     pub(crate) mutex: MutexFunctions,
     pub(crate) user_data: Box<dyn Any + Sync + Send>,
+    pub(crate) error_logger: ErrorHandlerLogFunction,
 }
 
 pub struct Tag {
@@ -54,5 +60,3 @@ pub struct Parallelization {
     pub worker_flags: i32,
     pub scheduler: Option<Transform2Fn>,
 }
-
-pub mod plugin;

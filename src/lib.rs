@@ -2,7 +2,8 @@
 #![cfg_attr(debug_assertions, allow(unused_imports))]
 #![cfg_attr(debug_assertions, allow(dead_code))]
 
-use state::ContextStruct;
+use log::Level;
+use state::{ContextStruct, ErrorCode, default_error_handler_log_function};
 use std::{any::Any, sync::Arc};
 
 /// Maximum number of channels in ICC profiles
@@ -21,7 +22,7 @@ pub const MAX_TYPES_IN_PLUGIN: u32 = 20;
 const PI: f64 = 3.14159265358979323846;
 const LOG10E: f64 = 0.434294481903251827651;
 
-pub const DEFAULT_CONTEXT: Context = todo!() /* Arc::new(ContextStruct {
+pub const DEFAULT_CONTEXT: todo!() /* Context = Arc::new(ContextStruct {
     alarm_codes: todo!(),
     adaptation_state: todo!(),
     interpolator: todo!(),
@@ -35,7 +36,8 @@ pub const DEFAULT_CONTEXT: Context = todo!() /* Arc::new(ContextStruct {
     transforms: todo!(),
     mutex: todo!(),
     user_data: todo!(),
-})*/;
+    error_logger: default_error_handler_log_function,
+}) */;
 
 #[allow(non_camel_case_types)]
 pub type s15f16 = i32;
@@ -55,6 +57,7 @@ pub(crate) type PositionTableEntryFn = fn(
     n: usize,
     size_of_tag: usize,
 ) -> Result<()>;
+pub type ErrorHandlerLogFunction = fn(context_id: &Context, level: Level, error_code: Option<ErrorCode>, text: &'static str);
 
 use io::IoHandler;
 use plugin::TagTypeHandler;

@@ -3,34 +3,19 @@ use std::any::Any;
 use crate::{
     plugin::{
         CreateMutexFn, DestroyMutexFn, FormatterFactoryIn, FormatterFactoryOut, IntentFn,
-        InterpFnFactory, LockMutexFn, OptimizationFn, ParametricCurve, TagDescriptor,
+        InterpFnFactory, LockMutexFn, OptimizationFn, ParametricCurveEvaluator, TagDescriptor,
         TagTypeHandler, UnlockMutexFn,
     },
     types::{Signature, Transform2Fn, TransformFunc},
     ErrorHandlerLogFunction, MAX_CHANNELS,
 };
 
+pub(crate) mod context;
 mod error;
 pub mod plugin;
 
+pub use context::ContextStruct;
 pub use error::{default_error_handler_log_function, ErrorCode};
-
-pub struct ContextStruct {
-    pub(crate) alarm_codes: [u16; MAX_CHANNELS as usize],
-    pub(crate) adaptation_state: f64,
-    pub(crate) interpolator: InterpFnFactory,
-    pub(crate) curves: Vec<ParametricCurve>,
-    pub(crate) formatters: Formatters,
-    pub(crate) tag_types: Vec<TagTypeHandler>,
-    pub(crate) mpe_types: Vec<TagTypeHandler>,
-    pub(crate) tags: Vec<Tag>,
-    pub(crate) intents: Vec<Intent>,
-    pub(crate) optimizations: Vec<OptimizationFn>,
-    pub(crate) transforms: Vec<TransformFunc>,
-    pub(crate) mutex: MutexFunctions,
-    pub(crate) user_data: Box<dyn Any + Sync + Send>,
-    pub(crate) error_logger: ErrorHandlerLogFunction,
-}
 
 pub struct Tag {
     pub signature: Signature,
@@ -40,6 +25,11 @@ pub struct Tag {
 pub struct Formatters {
     pub r#in: Vec<FormatterFactoryIn>,
     pub out: Vec<FormatterFactoryOut>,
+}
+
+pub struct ParametricCurve {
+    pub functions: Vec<(i32, u32)>,
+    pub eval: ParametricCurveEvaluator,
 }
 
 pub struct Intent {

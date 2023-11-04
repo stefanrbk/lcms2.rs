@@ -22,7 +22,7 @@ pub const MAX_TYPES_IN_PLUGIN: u32 = 20;
 const PI: f64 = 3.14159265358979323846;
 const LOG10E: f64 = 0.434294481903251827651;
 
-pub const DEFAULT_CONTEXT: todo!() /* Context = Arc::new(ContextStruct {
+pub const DEFAULT_CONTEXT: Context = todo!() /* Arc::new(ContextStruct {
     alarm_codes: todo!(),
     adaptation_state: todo!(),
     interpolator: todo!(),
@@ -76,6 +76,8 @@ pub mod plugin;
 pub mod sig;
 pub mod state;
 pub mod types;
+
+pub use state::context::signal_error;
 
 pub mod device_attribute {
     pub const REFLECTIVE: u32 = 0;

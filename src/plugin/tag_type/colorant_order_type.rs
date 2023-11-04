@@ -1,22 +1,31 @@
 use std::{any::Any, mem::size_of};
 
-use crate::{io::IoHandler, Result, plugin::{read_u32, write_u32}, MAX_CHANNELS};
+use crate::{
+    io::IoHandler,
+    plugin::{read_u32, write_u32},
+    Result, MAX_CHANNELS,
+};
 
 use super::TagTypeHandler;
 
-pub fn type_colorant_order_type_read(_handler: &TagTypeHandler, io: &mut IoHandler, n_items: &mut usize, _size_of_tag: usize) ->Result<Box<dyn Any>> {
+pub fn type_colorant_order_type_read(
+    _handler: &TagTypeHandler,
+    io: &mut IoHandler,
+    n_items: &mut usize,
+    _size_of_tag: usize,
+) -> Result<Box<dyn Any>> {
     *n_items = 0;
 
-    let count = read_u32(io)?;
+    let count = read_u32(io)? as usize;
 
     if count > MAX_CHANNELS {
         return Err("Channel count out of range in type_colorant_order_type_read".into());
     }
 
     // We use FF as end marker
-    let mut colorant_order = [0xFFu8; MAX_CHANNELS as usize];
+    let mut colorant_order = [0xFFu8; MAX_CHANNELS];
 
-    if (io.read)(io, &mut colorant_order, size_of::<u8>(), count as usize) != count as usize {
+    if (io.read)(io, &mut colorant_order, size_of::<u8>(), count) != count {
         return Err("Read error in type_colorant_order_type_read".into());
     }
 
@@ -24,15 +33,20 @@ pub fn type_colorant_order_type_read(_handler: &TagTypeHandler, io: &mut IoHandl
     Ok(Box::new(colorant_order))
 }
 
-pub fn type_colorant_order_type_write(_handler: &TagTypeHandler, io: &mut IoHandler, ptr: &dyn Any, _n_items: usize) -> Result<()> {
+pub fn type_colorant_order_type_write(
+    _handler: &TagTypeHandler,
+    io: &mut IoHandler,
+    ptr: &dyn Any,
+    _n_items: usize,
+) -> Result<()> {
     match ptr.downcast_ref::<[u8; 16]>() {
         None => Err("Invalid object to write with type_colorant_order_type_write".into()),
         Some(colorant_order) => {
             let mut count = 0usize;
-            
+
             for i in 0..(MAX_CHANNELS as usize) {
                 if colorant_order[i] != 0xFFu8 {
-                    count+=1;
+                    count += 1;
                 }
             }
             write_u32(io, count as u32)?;
@@ -43,7 +57,7 @@ pub fn type_colorant_order_type_write(_handler: &TagTypeHandler, io: &mut IoHand
             }
 
             Ok(())
-        },
+        }
     }
 }
 

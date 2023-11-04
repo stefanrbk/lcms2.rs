@@ -8,7 +8,7 @@ pub const MAX_ENCODEABLE_AB2: f64 = (65535.0 / 256.0) - 128.0;
 pub const MIN_ENCODEABLE_AB4: f64 = -128.0;
 pub const MAX_ENCODEABLE_AB4: f64 = 127.0;
 
-pub const MAX_STAGE_CHANNELS: u32 = 128;
+pub const MAX_STAGE_CHANNELS: usize = 128;
 
 pub const MATRIX_DET_TOLERANCE: f64 = 1e-4;
 

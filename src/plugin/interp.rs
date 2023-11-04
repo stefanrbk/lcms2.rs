@@ -1,7 +1,7 @@
-use crate::plugin;
+use crate::{plugin, Result};
 use crate::types::InterpFunction;
 
-pub type InterpFnFactory = fn(nInputChannels: u32, nOutputChannels: u32, flags: u32) -> InterpFunction;
+pub type InterpFnFactory = fn(nInputChannels: usize, nOutputChannels: usize, flags: u32) -> Result<InterpFunction>;
 
 pub struct Interpolation {
     pub base: plugin::Base,

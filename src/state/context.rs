@@ -27,6 +27,6 @@ pub struct ContextStruct {
     pub(crate) error_logger: ErrorHandlerLogFunction,
 }
 
-pub fn signal_error(context_id: &Context, level: Level, error_code: Option<ErrorCode>, text: &'static str) {
+pub fn signal_error(context_id: &Context, level: Level, error_code: ErrorCode, text: &str) {
     (context_id.error_logger)(context_id, level, error_code, text)
 }

@@ -3,21 +3,21 @@
 #![cfg_attr(debug_assertions, allow(dead_code))]
 
 use log::Level;
-use state::{ContextStruct, ErrorCode, default_error_handler_log_function};
+use state::{default_error_handler_log_function, ContextStruct, ErrorCode};
 use std::{any::Any, sync::Arc};
 
 /// Maximum number of channels in ICC profiles
-pub const MAX_CHANNELS: u32 = 16;
+pub const MAX_CHANNELS: usize = 16;
 
 /// Use this flag to prevent changes being written to destination
 pub const SAMPLER_INSPECT: u32 = 0x01000000;
 
-pub const MAX_INPUT_DIMENSIONS: u32 = 15;
+pub const MAX_INPUT_DIMENSIONS: usize = 15;
 
 pub const NO_LANGUAGE: [u8; 2] = [0, 0];
 pub const NO_COUNTRY: [u8; 2] = [0, 0];
 
-pub const MAX_TYPES_IN_PLUGIN: u32 = 20;
+pub const MAX_TYPES_IN_PLUGIN: usize = 20;
 
 const PI: f64 = 3.14159265358979323846;
 const LOG10E: f64 = 0.434294481903251827651;
@@ -57,7 +57,8 @@ pub(crate) type PositionTableEntryFn = fn(
     n: usize,
     size_of_tag: usize,
 ) -> Result<()>;
-pub type ErrorHandlerLogFunction = fn(context_id: &Context, level: Level, error_code: Option<ErrorCode>, text: &'static str);
+pub type ErrorHandlerLogFunction =
+    fn(context_id: &Context, level: Level, error_code: ErrorCode, text: &str);
 
 use io::IoHandler;
 use plugin::TagTypeHandler;

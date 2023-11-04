@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use paste::paste;
 use std::{any::Any, sync::Arc};
 
-use crate::{io::IoHandler, types::Signature, Result};
+use crate::{io::IoHandler, sig, types::Signature, Result};
 
 use super::Base;
 
@@ -63,70 +63,58 @@ pub(crate) mod text_description;
 pub(crate) mod u16_fixed16;
 pub(crate) mod xyz;
 
+use chromaticity::*;
+use colorant_order_type::*;
+use data::*;
 pub(crate) use functions::*;
-macro_rules! ReadFn {
-    ($x:ident) => {
-        paste! {
-            $x::[<type_ $x _read>]
-        }
-    };
-}
-macro_rules! WriteFn {
-    ($x:ident) => {
-        paste! {
-            $x::[<type_ $x _write>]
-        }
-    };
-}
-macro_rules! DupFn {
-    ($x:ident) => {
-        paste! {
-            $x::[<type_ $x _dup>]
-        }
-    };
-}
-macro_rules! FreeFn {
-    ($x:ident) => {
-        paste! {
-            $x::[<type_ $x _free>]
-        }
-    };
-}
+use s15_fixed16::*;
+use signature::*;
+use text::*;
+use text_description::*;
+use u16_fixed16::*;
+use xyz::*;
+
 macro_rules! TypeHandler {
     ($t:path, $x:ident) => {
-        TagTypeHandler {
-            signature: $t,
-            read: ReadFn!($x),
-            write: WriteFn!($x),
-            dup: DupFn!($x),
-            free: FreeFn!($x),
-            context_id: crate::DEFAULT_CONTEXT,
-            icc_version: 0,
+        paste::paste! {
+            TagTypeHandler {
+                signature: $t,
+                read: [<type_ $x _read>],
+                write: [<type_ $x _write>],
+                dup: [<type_ $x _dup>],
+                free: [<type_ $x _free>],
+                context_id: crate::DEFAULT_CONTEXT,
+                icc_version: 0,
+            }
         }
     };
 }
 macro_rules! TypeMpeHandler {
-    ($t:path, $x:ident) => {
-        TagTypeHandler {
-            signature: $t,
-            read: ReadFn!($x),
-            write: WriteFn!($x),
-            dup: generic_mpe_dup,
-            free: generic_mpe_free,
-            context_id: crate::DEFAULT_CONTEXT,
-            icc_version: 0,
+    ($t:ty, $x:ident) => {
+        paste::paste! {
+            TagTypeHandler {
+                signature: $t,
+                read: [<type_ $x _read>],
+                write: [<type_ $x _write>],
+                dup: generic_mpe_dup,
+                free: generic_mpe_free,
+                context_id: crate::DEFAULT_CONTEXT,
+                icc_version: 0,
+            }
         }
     };
 }
+
 pub static SUPPORTED_TAG_TYPES: Lazy<Vec<TagTypeHandler>> = Lazy::new(|| {
     vec![
-        TypeHandler!(crate::sig::types::XYZ, xyz),
-        TypeHandler!(crate::sig::types::CHROMATICITY, chromaticity),
-        TypeHandler!(crate::sig::types::COLORANT_ORDER, colorant_order_type),
-        TypeHandler!(crate::sig::types::S15_FIXED16_ARRAY, s15_fixed16),
-        TypeHandler!(crate::sig::types::U16_FIXED16_ARRAY, u16_fixed16),
-        TypeHandler!(crate::sig::types::SIGNATURE, signature),
-        TypeHandler!(crate::sig::types::TEXT, text),
-        TypeHandler!(crate::sig::types::DATA, data),
+        TypeHandler!(sig::types::XYZ, xyz),
+        TypeHandler!(sig::types::CHROMATICITY, chromaticity),
+        TypeHandler!(sig::types::COLORANT_ORDER, colorant_order_type),
+        TypeHandler!(sig::types::S15_FIXED16_ARRAY, s15_fixed16),
+        TypeHandler!(sig::types::U16_FIXED16_ARRAY, u16_fixed16),
+        TypeHandler!(sig::types::SIGNATURE, signature),
+        TypeHandler!(sig::types::TEXT, text),
+        TypeHandler!(sig::types::DATA, data),
+        TypeHandler!(sig::types::TEXT_DESCRIPTION, text_description),
     ]
 });

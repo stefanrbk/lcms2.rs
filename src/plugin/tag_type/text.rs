@@ -17,7 +17,7 @@ pub fn type_text_read(
 ) -> Result<Box<dyn Any>> {
     *n_items = 0;
 
-    let mut value = Box::new(MLU::new(handler.context_id.clone(), 1));
+    let mut value = Box::new(MLU::new(&handler.context_id, 1));
 
     // We need to store the "\0" at the end, so +1
     if size_of_tag == u32::MAX as usize {
@@ -74,20 +74,7 @@ pub fn type_text_write(
     }
 }
 
-pub fn type_text_dup(
-    _handler: &TagTypeHandler,
-    ptr: &dyn Any,
-    _n_items: usize,
-) -> Result<Box<dyn Any>> {
-    match ptr.downcast_ref::<MLU>() {
-        None => Err("Invalid object to duplicate with type_text_dup".into()),
-        Some(value) => Ok(Box::new(value.clone())),
-    }
-}
-
-pub fn type_text_free(_handler: &TagTypeHandler, ptr: Box<dyn Any>) {
-    drop(ptr);
-}
+type_dup_and_free!(text, MLU);
 
 pub fn decide_text_type(icc_version: f64, _data: Box<dyn Any>) -> Signature {
     if icc_version >= 4.0 {

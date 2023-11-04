@@ -24,13 +24,4 @@ pub fn type_signature_write(_handler: &TagTypeHandler, io: &mut IoHandler, ptr: 
     }
 }
 
-pub fn type_signature_dup(_handler: &TagTypeHandler, ptr: &dyn Any, _n_items: usize) -> Result<Box<dyn Any>> {
-    match ptr.downcast_ref::<Signature>() {
-        None => Err("Invalid object to duplicate with type_signature_dup".into()),
-        Some(value) => Ok(Box::new(*value)),
-    }
-}
-
-pub fn type_signature_free(_handler: &TagTypeHandler, ptr: Box<dyn Any>) {
-    drop(ptr);
-}
+type_dup_and_free!(signature, Signature);

@@ -23,16 +23,7 @@ pub fn type_xyz_write(_handler: &TagTypeHandler, io: &mut IoHandler, ptr: &dyn A
     }
 }
 
-pub fn type_xyz_dup(_handler: &TagTypeHandler, ptr: &dyn Any, _n_items: usize) -> Result<Box<dyn Any>> {
-    match ptr.downcast_ref::<XYZ>() {
-        None => Err("Invalid object to duplicate with type_xyz_dup".into()),
-        Some(xyz) => Ok(Box::new(*xyz)),
-    }
-}
-
-pub fn type_xyz_free(_handler: &TagTypeHandler, ptr: Box<dyn Any>) {
-    drop(ptr);
-}
+type_dup_and_free!(xyz, XYZ);
 
 pub fn decide_xyz_type(_icc_version: f64, _data: Box<dyn Any>) -> Signature {
     sig::types::XYZ

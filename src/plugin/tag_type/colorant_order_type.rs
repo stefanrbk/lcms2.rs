@@ -47,13 +47,4 @@ pub fn type_colorant_order_type_write(_handler: &TagTypeHandler, io: &mut IoHand
     }
 }
 
-pub fn type_colorant_order_type_dup(_handler: &TagTypeHandler, ptr: &dyn Any, _n_items: usize) -> Result<Box<dyn Any>> {
-    match ptr.downcast_ref::<[u8; 16]>() {
-        None => Err("Invalid object to duplicate with type_colorant_order_type_dup".into()),
-        Some(colorant_order) => Ok(Box::new(*colorant_order)),
-    }
-}
-
-pub fn type_colorant_order_type_free(_handler: &TagTypeHandler, ptr: Box<dyn Any>) {
-    drop(ptr);
-}
+type_dup_and_free!(colorant_order_type, [u8; 16]);

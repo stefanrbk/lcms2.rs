@@ -6,7 +6,7 @@ use crate::{
     io::IoHandler,
     s15f16,
     types::{DateTime, Signature, XYZ},
-    u8f8, Result, u16f16,
+    u16f16, u8f8, Result,
 };
 
 #[inline]

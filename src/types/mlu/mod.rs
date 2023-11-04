@@ -26,9 +26,9 @@ struct Entry {
 }
 
 impl<'a> MLU {
-    pub fn new(context_id: Arc<Context>, n_items: usize) -> MLU {
+    pub fn new(context_id: &Arc<Context>, n_items: usize) -> MLU {
         MLU {
-            context_id,
+            context_id: context_id.clone(),
             allocated_entries: n_items,
             used_entries: 0,
             entries: Vec::<Entry>::with_capacity(n_items as usize),
@@ -98,10 +98,7 @@ impl<'a> MLU {
 
         // Is there any room available?
         if self.used_entries >= self.allocated_entries {
-            let result = self.grow_table();
-            if result.is_err() {
-                return Err(result.unwrap_err());
-            }
+            self.grow_table()?;
         }
 
         // Only one ASCII string
@@ -110,11 +107,8 @@ impl<'a> MLU {
         }
 
         // Check for size
-        while ((self.pool_size - self.pool_used) as usize) < ((size + 1) * size_of::<u16>()) {
-            let result = self.grow_pool();
-            if result.is_err() {
-                return Err(result.unwrap_err());
-            }
+        while ((self.pool_size - self.pool_used) as usize) < (size * size_of::<u16>()) {
+            self.grow_pool()?;
         }
 
         let offset = self.pool_used;
@@ -123,7 +117,6 @@ impl<'a> MLU {
 
         // Set the entry
         ptr.copy_from_slice(&block);
-        ptr[size as usize] = 0;
         self.pool_used += size * size_of::<u16>();
 
         self.entries.push(Entry {
@@ -146,16 +139,10 @@ impl<'a> MLU {
         let lang = str_to_16(&lang_code);
         let cntr = str_to_16(&cntr_code);
 
-        // len == 0 would prevent operation, so we set an empth string pointing to zero
-        if len == 0 {
-            let block = [0u16];
-            return self.add_block(&block, lang, cntr);
-        }
-
         let encoding = to_encoding(437).unwrap();
         let (utf8_str, _, _) = encoding.decode(ascii_str);
 
-        let mut w_str = vec![0 as u16; len + 1];
+        let mut w_str = vec![0 as u16; len];
 
         let chars_written = convert_utf8_to_utf16(utf8_str.as_bytes(), &mut w_str);
         w_str.truncate(chars_written);
@@ -173,12 +160,6 @@ impl<'a> MLU {
         let lang = str_to_16(&lang_code);
         let cntr = str_to_16(&cntr_code);
 
-        // len == 0 would prevent operation, so we set an empth string pointing to zero
-        if len == 0 {
-            let wide_str = [0u16];
-            return self.add_block(&wide_str, lang, cntr);
-        }
-
         self.add_block(wide_str, lang, cntr)
     }
 
@@ -188,11 +169,7 @@ impl<'a> MLU {
         drop(self);
     }
 
-    pub(crate) fn _get_wide(
-        &'a self,
-        lang_code: u16,
-        cntr_code: u16,
-    ) -> Option<(&'a [u16], u16, u16)> {
+    fn _get_wide(&'a self, lang_code: u16, cntr_code: u16) -> Option<(&'a [u16], u16, u16)> {
         let mlu = self;
 
         let mut best = -1;
@@ -323,7 +300,7 @@ impl<'a> MLU {
 }
 
 impl Dup for MLU {
-    fn dup(&self, context_id: Arc<Context>) -> Result<Self, String>
+    fn dup(&self, context_id: &Arc<Context>) -> Result<Self, String>
     where
         Self: Sized,
     {
@@ -351,7 +328,7 @@ impl Dup for MLU {
 
 impl<'a> Clone for MLU {
     fn clone(&self) -> Self {
-        match self.dup(self.context_id.clone()) {
+        match self.dup(&self.context_id) {
             Ok(result) => result,
             Err(msg) => panic!("{}", msg),
         }

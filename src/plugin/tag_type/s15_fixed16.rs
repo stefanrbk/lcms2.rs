@@ -32,13 +32,4 @@ pub fn type_s15_fixed16_write(_handler: &TagTypeHandler, io: &mut IoHandler, ptr
     }
 }
 
-pub fn type_s15_fixed16_dup(_handler: &TagTypeHandler, ptr: &dyn Any, _n_items: usize) -> Result<Box<dyn Any>> {
-    match ptr.downcast_ref::<Vec<f64>>() {
-        None => Err("Invalid object to duplicate with type_s15_fixed16_dup".into()),
-        Some(value) => Ok(Box::new(value.clone())),
-    }
-}
-
-pub fn type_s15_fixed16_free(_handler: &TagTypeHandler, ptr: Box<dyn Any>) {
-    drop(ptr);
-}
+type_dup_and_free!(s15_fixed16, Vec<f64>);

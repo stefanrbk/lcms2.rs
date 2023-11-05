@@ -8,13 +8,13 @@ pub struct NamedColorEntry {
 }
 
 pub struct NamedColor {
-    pub context_id: Context,
-    pub n_colors: usize,
-    pub allocated: usize,
-    pub colorant_count: usize,
-    pub prefix: [u8; 32],
-    pub suffix: [u8; 32],
-    pub list: Vec<NamedColorEntry>,
+    pub(crate) context_id: Context,
+    pub(crate) n_colors: usize,
+    pub(crate) allocated: usize,
+    pub(crate) colorant_count: usize,
+    pub(crate) prefix: [u8; 32],
+    pub(crate) suffix: [u8; 32],
+    pub(crate) list: Vec<NamedColorEntry>,
 }
 
 impl NamedColor {
@@ -53,15 +53,15 @@ impl NamedColor {
         context_id: &Context,
         n: usize,
         colorant_count: usize,
-        prefix: String,
-        suffix: String,
+        prefix: &str,
+        suffix: &str,
     ) -> Result<Self> {
         Self::_new(
             context_id,
             n,
             colorant_count,
-            string_to_ascii_u8_32(prefix),
-            string_to_ascii_u8_32(suffix),
+            str_to_ascii_u8_32(prefix),
+            str_to_ascii_u8_32(suffix),
         )
     }
 
@@ -114,7 +114,7 @@ impl NamedColor {
 
     pub fn push(
         &mut self,
-        name: String,
+        name: &str,
         pcs: Option<[u16; 3]>,
         colorant: Option<[u16; MAX_CHANNELS]>,
     ) -> Result<()> {
@@ -134,7 +134,7 @@ impl NamedColor {
             }
         }
 
-        self.list[self.n_colors].name = string_to_ascii_u8_32(name);
+        self.list[self.n_colors].name = str_to_ascii_u8_32(name);
 
         self.n_colors += 1;
 
@@ -145,22 +145,22 @@ impl NamedColor {
         self.n_colors
     }
 
-    pub fn find_index(&self, name: String) -> isize {
+    pub fn find_index(&self, name: &str) -> Option<usize> {
         let name = strip_non_ascii(name);
 
         for i in 0..self.len() {
-            if &name == str_from_u8_nul_ascii(&self.list[i].name) {
-                return i as isize;
+            if str::cmp(name, str_from_u8_nul_ascii(&self.list[i].name)).is_eq() {
+                return Some(i);
             }
         }
 
-        -1
+        None
     }
 }
 
 fn str_from_u8_nul_ascii(utf8_src: &[u8]) -> &str {
     if !utf8_src.is_ascii() {
-        return unsafe { :: std::str::from_utf8_unchecked(&utf8_src[..0])};
+        return unsafe { ::std::str::from_utf8_unchecked(&utf8_src[..0]) };
     }
     let mut nul_range_end = 1usize;
     for c in utf8_src {
@@ -172,21 +172,25 @@ fn str_from_u8_nul_ascii(utf8_src: &[u8]) -> &str {
 
     unsafe { ::std::str::from_utf8_unchecked(&utf8_src[0..nul_range_end]) }
 }
-fn strip_non_ascii(s: String) -> String {
-    let mut result = String::with_capacity(s.len());
-
-    for c in s.chars() {
-        result.push(if c >= 128 as char { '?' } else { c });
+fn strip_non_ascii(s: &str) -> &str {
+    if s.is_ascii() {
+        return s;
     }
 
-    result
+    let mut result = Vec::<u8>::with_capacity(s.len());
+
+    for c in s.chars() {
+        result.push(if c >= 128 as char { '?' } else { c } as u8);
+    }
+
+    unsafe { ::std::str::from_utf8_unchecked(&result) }
 }
 
-fn string_to_ascii_u8_32(s: String) -> [u8; 32] {
+fn str_to_ascii_u8_32(s: &str) -> [u8; 32] {
     let mut result = [0u8; 32];
 
     let mut s = strip_non_ascii(s);
-    s.truncate(32);
+    let s = if s.len() > 32 { &s[..32] } else { s };
 
     result[..s.len()].copy_from_slice(s.as_bytes());
 

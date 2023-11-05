@@ -1,8 +1,12 @@
+use std::ops::Index;
+
+use ascii::{AsciiChar, AsciiString, AsciiStr};
+
 use crate::{Context, Result, MAX_CHANNELS};
 
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Clone)]
 pub struct NamedColorEntry {
-    pub name: [u8; 32],
+    pub name: AsciiString,
     pub pcs: [u16; 3],
     pub device_colorant: [u16; MAX_CHANNELS],
 }
@@ -12,8 +16,8 @@ pub struct NamedColor {
     pub(crate) n_colors: usize,
     pub(crate) allocated: usize,
     pub(crate) colorant_count: usize,
-    pub(crate) prefix: [u8; 32],
-    pub(crate) suffix: [u8; 32],
+    pub(crate) prefix: AsciiString,
+    pub(crate) suffix: AsciiString,
     pub(crate) list: Vec<NamedColorEntry>,
 }
 
@@ -60,8 +64,8 @@ impl NamedColor {
             context_id,
             n,
             colorant_count,
-            str_to_ascii_u8_32(prefix),
-            str_to_ascii_u8_32(suffix),
+            &strip_non_ascii(prefix),
+            &strip_non_ascii(suffix),
         )
     }
 
@@ -69,12 +73,18 @@ impl NamedColor {
         context_id: &Context,
         n: usize,
         colorant_count: usize,
-        prefix: [u8; 32],
-        suffix: [u8; 32],
+        prefix: &AsciiStr,
+        suffix: &AsciiStr,
     ) -> Result<Self> {
         let list = Vec::<NamedColorEntry>::new();
         let n_colors = 0usize;
         let allocated = 0usize;
+
+        let mut prefix = prefix.to_owned();
+        let mut suffix = suffix.to_owned();
+
+        prefix.truncate(32);
+        suffix.truncate(32);
 
         let mut v = Self {
             context_id: context_id.clone(),
@@ -98,8 +108,8 @@ impl NamedColor {
             &self.context_id,
             self.n_colors,
             self.colorant_count,
-            self.prefix,
-            self.suffix,
+            &self.prefix,
+            &self.suffix,
         )?;
 
         // For really large tables we need this
@@ -107,9 +117,9 @@ impl NamedColor {
             new_nc.grow()?
         }
 
-        new_nc.list[..self.list.len()].copy_from_slice(&self.list);
+        new_nc.list[..self.list.len()].clone_from_slice(&self.list);
 
-        Err("".into())
+        Ok(new_nc)
     }
 
     pub fn push(
@@ -134,7 +144,9 @@ impl NamedColor {
             }
         }
 
-        self.list[self.n_colors].name = str_to_ascii_u8_32(name);
+        let mut name = strip_non_ascii(name);
+        name.truncate(32);
+        self.list[self.n_colors].name = name;
 
         self.n_colors += 1;
 
@@ -145,11 +157,12 @@ impl NamedColor {
         self.n_colors
     }
 
-    pub fn find_index(&self, name: &str) -> Option<usize> {
-        let name = strip_non_ascii(name);
+    pub fn find(&self, name: &str) -> Option<usize> {
+        let mut name = strip_non_ascii(name);
+        name.truncate(32);
 
         for i in 0..self.len() {
-            if str::cmp(name, str_from_u8_nul_ascii(&self.list[i].name)).is_eq() {
+            if name.cmp(&self.list[i].name).is_eq() {
                 return Some(i);
             }
         }
@@ -158,41 +171,20 @@ impl NamedColor {
     }
 }
 
-fn str_from_u8_nul_ascii(utf8_src: &[u8]) -> &str {
-    if !utf8_src.is_ascii() {
-        return unsafe { ::std::str::from_utf8_unchecked(&utf8_src[..0]) };
-    }
-    let mut nul_range_end = 1usize;
-    for c in utf8_src {
-        if *c == 0 {
-            break;
-        }
-        nul_range_end += 1;
-    }
+impl Index<usize> for NamedColor {
+    type Output = NamedColorEntry;
 
-    unsafe { ::std::str::from_utf8_unchecked(&utf8_src[0..nul_range_end]) }
-}
-fn strip_non_ascii(s: &str) -> &str {
-    if s.is_ascii() {
-        return s;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.list[index]
     }
-
-    let mut result = Vec::<u8>::with_capacity(s.len());
-
-    for c in s.chars() {
-        result.push(if c >= 128 as char { '?' } else { c } as u8);
-    }
-
-    unsafe { ::std::str::from_utf8_unchecked(&result) }
 }
 
-fn str_to_ascii_u8_32(s: &str) -> [u8; 32] {
-    let mut result = [0u8; 32];
-
-    let mut s = strip_non_ascii(s);
-    let s = if s.len() > 32 { &s[..32] } else { s };
-
-    result[..s.len()].copy_from_slice(s.as_bytes());
+fn strip_non_ascii(s: &str) -> AsciiString {
+    let mut result = AsciiString::with_capacity(s.len());
+    for c in s.chars().map(|c| if c <= 127 as char { c } else { '?' }) {
+        // c cannot be a non_ascii character as it would have been changed to '?'!
+        result.push(unsafe { AsciiChar::from_ascii_unchecked(c as u8) })
+    }
 
     result
 }

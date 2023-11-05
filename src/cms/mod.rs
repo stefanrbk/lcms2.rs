@@ -2,6 +2,7 @@ use crate::device_attribute;
 use crate::sig;
 use crate::types;
 use crate::types::XYZ;
+use crate::DEFAULT_CONTEXT;
 
 pub mod plugin;
 
@@ -1164,28 +1165,84 @@ pub use types::{Screening, ScreeningChannel};
 
 // Named color -----------------------------------------------------------------------------------------------------------------
 
-// typedef struct _cms_NAMEDCOLORLIST_struct cmsNAMEDCOLORLIST;
+pub use types::NamedColor as NamedColorList;
 
-// CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
-//                                                            cmsUInt32Number n,
-//                                                            cmsUInt32Number ColorantCount,
-//                                                            const char* Prefix, const char* Suffix);
+pub fn alloc_named_color_list(
+    context_id: &Context,
+    n: u32,
+    colorant_count: u32,
+    prefix: &str,
+    suffix: &str,
+) -> Option<NamedColorList> {
+    let context_id = if let Some(context_id) = context_id {
+        context_id.clone()
+    } else {
+        DEFAULT_CONTEXT
+    };
+    if let Ok(nc) = NamedColorList::new(
+        &context_id,
+        n as usize,
+        colorant_count as usize,
+        prefix,
+        suffix,
+    ) {
+        Some(nc)
+    } else {
+        None
+    }
+}
 
-// CMSAPI void               CMSEXPORT cmsFreeNamedColorList(cmsNAMEDCOLORLIST* v);
-// CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsDupNamedColorList(const cmsNAMEDCOLORLIST* v);
-// CMSAPI cmsBool            CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char* Name,
-//                                                             cmsUInt16Number PCS[3],
-//                                                             cmsUInt16Number Colorant[cmsMAXCHANNELS]);
+pub fn free_named_color_list(v: Box<NamedColorList>) {
+    drop(v);
+}
 
-// CMSAPI cmsUInt32Number    CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* v);
-// CMSAPI cmsInt32Number     CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* v, const char* Name);
+pub fn dup_named_color_list(v: &NamedColorList) -> Option<NamedColorList> {
+    if let Ok(result) = v.dup() {
+        Some(result)
+    } else {
+        None
+    }
+}
 
-// CMSAPI cmsBool            CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cmsUInt32Number nColor,
-//                                                       char* Name,
-//                                                       char* Prefix,
-//                                                       char* Suffix,
-//                                                       cmsUInt16Number* PCS,
-//                                                       cmsUInt16Number* Colorant);
+pub fn append_named_color(
+    v: &mut NamedColorList,
+    name: &str,
+    pcs: Option<[u16; 3]>,
+    colorant: Option<[u16; MAX_CHANNELS]>,
+) -> bool {
+    v.push(name, pcs, colorant).is_ok()
+}
+
+pub fn named_color_count(v: &NamedColorList) -> u32 {
+    v.len() as u32
+}
+
+pub fn named_color_index(v: &NamedColorList, name: &str) -> i32 {
+    if let Some(i) = v.find(name) {
+        i as i32
+    } else {
+        -1
+    }
+}
+
+pub fn named_color_info(
+    v: &NamedColorList,
+    n_color: u32,
+    name: &mut String,
+    prefix: &mut String,
+    suffix: &mut String,
+    pcs: &mut [u16; 3],
+    colorant: &mut [u16; MAX_CHANNELS],
+) -> bool {
+    let value = &v[n_color as usize];
+    name.push_str(value.name.as_str());
+    prefix.push_str(v.prefix.as_str());
+    suffix.push_str(v.suffix.as_str());
+    *pcs = value.pcs;
+    *colorant = value.device_colorant;
+
+    true
+}
 
 // Retrieve named color list from transform
 // CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsGetNamedColorList(cmsHTRANSFORM xform);

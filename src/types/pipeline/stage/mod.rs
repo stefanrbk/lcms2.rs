@@ -17,17 +17,17 @@ pub struct Stage {
 
     pub(crate) data: Box<dyn Any>,
 
-    pub(crate) next: list::Link<Stage>,
+    pub(crate) next: list::List<Stage>,
 }
 
-mod tone_curve;
-mod matrix;
 mod clut;
+mod matrix;
+mod tone_curve;
 
 use std::any::Any;
 
-pub use tone_curve::ToneCurvesData;
-pub use matrix::MatrixData;
 pub use clut::{CLutData, Tab};
+pub use matrix::MatrixData;
+pub use tone_curve::ToneCurvesData;
 
-use crate::{types::Signature, list};
+use crate::{list, types::Signature};

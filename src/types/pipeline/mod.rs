@@ -2,7 +2,7 @@ pub type Eval16Fn = fn(In: &[u16], Out: &mut [u16], data: &Box<dyn Any>);
 pub type EvalFloatFn = fn(In: &[f32], Out: &mut [f32], data: &Box<dyn Any>);
 
 pub struct Pipeline {
-    pub(crate) elements: list::Link<Stage>,
+    pub(crate) elements: list::List<Stage>,
     pub(crate) context_id: Arc<crate::Context>,
     pub(crate) input_channels: u32,
     pub(crate) output_channels: u32,
@@ -21,11 +21,11 @@ mod stage;
 use std::any::Any;
 use std::sync::Arc;
 
-pub use stage::{Stage, StageDupElemFn, StageEvalFn, StageFreeElemFn};
 pub use stage::CLutData as CLutStageData;
-pub use stage::Tab as CLutStageDataTab;
 pub use stage::MatrixData as MatrixStageData;
+pub use stage::Tab as CLutStageDataTab;
 pub use stage::ToneCurvesData as ToneCurvesStageData;
+pub use stage::{Stage, StageDupElemFn, StageEvalFn, StageFreeElemFn};
 
 use crate::list;
-use crate::plugin::{FreeUserDataFn, DupUserDataFn};
+use crate::plugin::{DupUserDataFn, FreeUserDataFn};

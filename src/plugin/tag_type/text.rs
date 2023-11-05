@@ -3,15 +3,16 @@ use std::{any::Any, mem::size_of};
 use crate::{
     io::IoHandler,
     plugin::{read_signature, write_signature},
-    types::{Signature, MLU, Dup},
-    Result, NO_COUNTRY, NO_LANGUAGE, sig,
+    sig,
+    types::{Dup, Signature, MLU},
+    Result, NO_COUNTRY, NO_LANGUAGE,
 };
 
 use super::TagTypeHandler;
 
 pub fn type_text_read(
     handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     n_items: &mut usize,
     size_of_tag: usize,
 ) -> Result<Box<dyn Any>> {
@@ -25,7 +26,7 @@ pub fn type_text_read(
     }
 
     let mut text = vec![0u8; size_of_tag + 1];
-    if (io.read)(io, &mut text, size_of::<u8>(), size_of_tag) != size_of_tag {
+    if io.read(&mut text, size_of::<u8>(), size_of_tag) != size_of_tag {
         return Err("Read error in type_text_read".into());
     }
 
@@ -40,7 +41,7 @@ pub fn type_text_read(
 
 pub fn type_text_write(
     _handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     ptr: &dyn Any,
     _n_items: usize,
 ) -> Result<()> {
@@ -65,7 +66,7 @@ pub fn type_text_write(
                 return Err("No ascii text to write in type_text_write".into());
             }
 
-            if !(io.write)(io, size, &text) {
+            if !io.write(size, &text) {
                 return Err("Write error in type_text_write".into());
             }
 

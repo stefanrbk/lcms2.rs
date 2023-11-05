@@ -1,10 +1,19 @@
 use std::{any::Any, mem::size_of};
 
-use crate::{io::IoHandler, Result, plugin::{read_s15f16, write_s15f16}};
+use crate::{
+    io::IoHandler,
+    plugin::{read_s15f16, write_s15f16},
+    Result,
+};
 
 use super::TagTypeHandler;
 
-pub fn type_s15_fixed16_read(_handler: &TagTypeHandler, io: &mut IoHandler, n_items: &mut usize, size_of_tag: usize) ->Result<Box<dyn Any>> {
+pub fn type_s15_fixed16_read(
+    _handler: &TagTypeHandler,
+    io: &mut dyn IoHandler,
+    n_items: &mut usize,
+    size_of_tag: usize,
+) -> Result<Box<dyn Any>> {
     *n_items = 0;
 
     let n = size_of_tag / size_of::<u32>();
@@ -19,7 +28,12 @@ pub fn type_s15_fixed16_read(_handler: &TagTypeHandler, io: &mut IoHandler, n_it
     Ok(value)
 }
 
-pub fn type_s15_fixed16_write(_handler: &TagTypeHandler, io: &mut IoHandler, ptr: &dyn Any, n_items: usize) -> Result<()> {
+pub fn type_s15_fixed16_write(
+    _handler: &TagTypeHandler,
+    io: &mut dyn IoHandler,
+    ptr: &dyn Any,
+    n_items: usize,
+) -> Result<()> {
     match ptr.downcast_ref::<Vec<f64>>() {
         None => Err("Invalid object to write with type_s15_fixed16_write".into()),
         Some(value) => {
@@ -28,7 +42,7 @@ pub fn type_s15_fixed16_write(_handler: &TagTypeHandler, io: &mut IoHandler, ptr
             }
 
             Ok(())
-        },
+        }
     }
 }
 

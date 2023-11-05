@@ -10,7 +10,7 @@ use super::TagTypeHandler;
 
 pub fn type_colorant_order_type_read(
     _handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     n_items: &mut usize,
     _size_of_tag: usize,
 ) -> Result<Box<dyn Any>> {
@@ -25,7 +25,7 @@ pub fn type_colorant_order_type_read(
     // We use FF as end marker
     let mut colorant_order = [0xFFu8; MAX_CHANNELS];
 
-    if (io.read)(io, &mut colorant_order, size_of::<u8>(), count) != count {
+    if io.read(&mut colorant_order, size_of::<u8>(), count) != count {
         return Err("Read error in type_colorant_order_type_read".into());
     }
 
@@ -35,7 +35,7 @@ pub fn type_colorant_order_type_read(
 
 pub fn type_colorant_order_type_write(
     _handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     ptr: &dyn Any,
     _n_items: usize,
 ) -> Result<()> {
@@ -52,7 +52,7 @@ pub fn type_colorant_order_type_write(
             write_u32(io, count as u32)?;
 
             let sz = count * size_of::<u8>();
-            if !(io.write)(io, sz, colorant_order) {
+            if !io.write(sz, colorant_order) {
                 return Err("Write error in type_colorant_order_type_write".into());
             }
 

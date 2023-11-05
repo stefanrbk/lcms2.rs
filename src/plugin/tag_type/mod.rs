@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use paste::paste;
 use std::{any::Any, sync::Arc};
 
-use crate::{io::IoHandler, sig, types::Signature, Result, Context};
+use crate::{io::IoHandler, sig, types::Signature, Context, Result};
 
 use super::Base;
 
@@ -10,13 +10,13 @@ pub struct TagTypeHandler {
     pub signature: Signature,
     pub read: fn(
         handler: &TagTypeHandler,
-        io: &mut IoHandler,
+        io: &mut dyn IoHandler,
         n_items: &mut usize,
         size_of_tag: usize,
     ) -> Result<Box<dyn Any>>,
     pub write: fn(
         handler: &TagTypeHandler,
-        io: &mut IoHandler,
+        io: &mut dyn IoHandler,
         ptr: &dyn Any,
         n_items: usize,
     ) -> Result<()>,

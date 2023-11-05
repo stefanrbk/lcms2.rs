@@ -12,7 +12,7 @@ use super::TagTypeHandler;
 
 pub fn type_data_read(
     _handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     n_items: &mut usize,
     size_of_tag: usize,
 ) -> Result<Box<dyn Any>> {
@@ -30,7 +30,7 @@ pub fn type_data_read(
     let flags = read_u32(io)?;
 
     let mut data = vec![0u8; len_of_data];
-    if (io.read)(io, &mut data, size_of::<u8>(), len_of_data) != len_of_data {
+    if io.read(&mut data, size_of::<u8>(), len_of_data) != len_of_data {
         return Err("Read error in type_data_read".into());
     }
 
@@ -44,7 +44,7 @@ pub fn type_data_read(
 
 pub fn type_data_write(
     _handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     ptr: &dyn Any,
     _n_items: usize,
 ) -> Result<()> {
@@ -53,9 +53,9 @@ pub fn type_data_write(
         Some(data) => {
             write_u32(io, data.len as u32)?;
 
-            match (io.write)(io, data.len, &data.data) {
+            match io.write(data.len, &data.data) {
                 false => Err("Write error in type_data_write".into()),
-                true => Ok(())
+                true => Ok(()),
             }
         }
     }

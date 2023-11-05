@@ -24,25 +24,25 @@ pub const fn adjust_endianess64(q_word: u64) -> u64 {
     q_word.to_be()
 }
 
-pub fn read_u8(io: &mut IoHandler) -> Result<u8> {
+pub fn read_u8(io: &mut dyn IoHandler) -> Result<u8> {
     let mut tmp = [0u8; size_of::<u8>()];
-    if (io.read)(io, &mut tmp, size_of::<u8>(), 1) != size_of::<u8>() {
+    if io.read(&mut tmp, size_of::<u8>(), 1) != size_of::<u8>() {
         return Err("Read error in read_u8".into());
     }
 
     Ok(tmp[0])
 }
 
-pub fn read_u16(io: &mut IoHandler) -> Result<u16> {
+pub fn read_u16(io: &mut dyn IoHandler) -> Result<u16> {
     let mut tmp = [0u8; size_of::<u16>()];
-    if (io.read)(io, &mut tmp, size_of::<u16>(), 1) != size_of::<u16>() {
+    if io.read(&mut tmp, size_of::<u16>(), 1) != size_of::<u16>() {
         return Err("Read error in read_u16".into());
     }
 
     Ok(adjust_endianess16(u16::from_ne_bytes(tmp)))
 }
 
-pub fn read_u16_slice<'a>(io: &mut IoHandler, array: &'a mut [u16]) -> Result<&'a [u16]> {
+pub fn read_u16_slice<'a>(io: &mut dyn IoHandler, array: &'a mut [u16]) -> Result<&'a [u16]> {
     for i in 0..array.len() {
         let value = read_u16(io);
         if value.is_err() {
@@ -56,18 +56,18 @@ pub fn read_u16_slice<'a>(io: &mut IoHandler, array: &'a mut [u16]) -> Result<&'
     Ok(array)
 }
 
-pub fn read_u32(io: &mut IoHandler) -> Result<u32> {
+pub fn read_u32(io: &mut dyn IoHandler) -> Result<u32> {
     let mut tmp = [0u8; size_of::<u32>()];
-    if (io.read)(io, &mut tmp, size_of::<u32>(), 1) != size_of::<u32>() {
+    if io.read(&mut tmp, size_of::<u32>(), 1) != size_of::<u32>() {
         return Err("Read error in read_u32".into());
     }
 
     Ok(adjust_endianess32(u32::from_ne_bytes(tmp)))
 }
 
-pub fn read_f32(io: &mut IoHandler) -> Result<f32> {
+pub fn read_f32(io: &mut dyn IoHandler) -> Result<f32> {
     let mut tmp = [0u8; size_of::<f32>()];
-    if (io.read)(io, &mut tmp, size_of::<f32>(), 1) != size_of::<f32>() {
+    if io.read(&mut tmp, size_of::<f32>(), 1) != size_of::<f32>() {
         return Err("Read error in read_f32".into());
     }
 
@@ -83,37 +83,37 @@ pub fn read_f32(io: &mut IoHandler) -> Result<f32> {
     Err("Float value was subnormal in read_f32".into())
 }
 
-pub fn read_signature(io: &mut IoHandler) -> Result<Signature> {
+pub fn read_signature(io: &mut dyn IoHandler) -> Result<Signature> {
     match read_u32(io) {
         Ok(value) => Ok(Signature(value)),
         Err(_) => Err("Read error in read_signature".into()),
     }
 }
 
-pub fn read_u64(io: &mut IoHandler) -> Result<u64> {
+pub fn read_u64(io: &mut dyn IoHandler) -> Result<u64> {
     let mut tmp = [0u8; size_of::<u64>()];
-    if (io.read)(io, &mut tmp, size_of::<u64>(), 1) != size_of::<u64>() {
+    if io.read(&mut tmp, size_of::<u64>(), 1) != size_of::<u64>() {
         return Err("Read error in read_u64".into());
     }
 
     Ok(adjust_endianess64(u64::from_ne_bytes(tmp)))
 }
 
-pub fn read_s15f16(io: &mut IoHandler) -> Result<f64> {
+pub fn read_s15f16(io: &mut dyn IoHandler) -> Result<f64> {
     match read_u32(io) {
         Ok(value) => Ok(s15_fixed16_to_f64(i32::from_ne_bytes(value.to_ne_bytes()))),
         Err(_) => Err("Read error in read_s15f16".into()),
     }
 }
 
-pub fn read_u16f16(io: &mut IoHandler) -> Result<f64> {
+pub fn read_u16f16(io: &mut dyn IoHandler) -> Result<f64> {
     match read_u32(io) {
         Ok(value) => Ok(u16_fixed16_to_f64(value)),
         Err(_) => Err("Read error in read_u16f16".into()),
     }
 }
 
-pub fn read_xyz(io: &mut IoHandler) -> Result<XYZ> {
+pub fn read_xyz(io: &mut dyn IoHandler) -> Result<XYZ> {
     let x = read_s15f16(io);
     if x.is_err() {
         return Err("Read error in read_xyz".into());
@@ -138,23 +138,23 @@ pub fn read_xyz(io: &mut IoHandler) -> Result<XYZ> {
     }
 }
 
-pub fn write_u8(io: &mut IoHandler, n: u8) -> Result<()> {
+pub fn write_u8(io: &mut dyn IoHandler, n: u8) -> Result<()> {
     let tmp = [n];
-    match (io.write)(io, size_of::<u8>(), &tmp) {
+    match io.write(size_of::<u8>(), &tmp) {
         true => Ok(()),
         false => Err("Write error in write_u8".into()),
     }
 }
 
-pub fn write_u16(io: &mut IoHandler, n: u16) -> Result<()> {
+pub fn write_u16(io: &mut dyn IoHandler, n: u16) -> Result<()> {
     let tmp = adjust_endianess16(n).to_ne_bytes();
-    match (io.write)(io, size_of::<u16>(), &tmp) {
+    match io.write(size_of::<u16>(), &tmp) {
         true => Ok(()),
         false => Err("Write error in write_u16".into()),
     }
 }
 
-pub fn write_u16_slice(io: &mut IoHandler, array: &[u16]) -> Result<()> {
+pub fn write_u16_slice(io: &mut dyn IoHandler, array: &[u16]) -> Result<()> {
     for n in array {
         if write_u16(io, *n).is_err() {
             return Err("Write error in write_u16".into());
@@ -164,38 +164,38 @@ pub fn write_u16_slice(io: &mut IoHandler, array: &[u16]) -> Result<()> {
     Ok(())
 }
 
-pub fn write_u32(io: &mut IoHandler, n: u32) -> Result<()> {
+pub fn write_u32(io: &mut dyn IoHandler, n: u32) -> Result<()> {
     let tmp = adjust_endianess32(n).to_ne_bytes();
-    match (io.write)(io, size_of::<f32>(), &tmp) {
+    match io.write(size_of::<f32>(), &tmp) {
         true => Ok(()),
         false => Err("Write error in write_u32".into()),
     }
 }
 
-pub fn write_f32(io: &mut IoHandler, n: f32) -> Result<()> {
+pub fn write_f32(io: &mut dyn IoHandler, n: f32) -> Result<()> {
     let tmp = adjust_endianess32(n.to_bits()).to_ne_bytes();
-    match (io.write)(io, size_of::<u32>(), &tmp) {
+    match io.write(size_of::<u32>(), &tmp) {
         true => Ok(()),
         false => Err("Write error in write_f32".into()),
     }
 }
 
-pub fn write_signature(io: &mut IoHandler, n: Signature) -> Result<()> {
+pub fn write_signature(io: &mut dyn IoHandler, n: Signature) -> Result<()> {
     match write_u32(io, n.0) {
         Ok(_) => Ok(()),
         Err(_) => Err("Write error in write_signature".into()),
     }
 }
 
-pub fn write_u64(io: &mut IoHandler, n: u64) -> Result<()> {
+pub fn write_u64(io: &mut dyn IoHandler, n: u64) -> Result<()> {
     let tmp = adjust_endianess64(n).to_ne_bytes();
-    match (io.write)(io, size_of::<u64>(), &tmp) {
+    match io.write(size_of::<u64>(), &tmp) {
         true => Ok(()),
         false => Err("Write error in write_u64".into()),
     }
 }
 
-pub fn write_s15f16(io: &mut IoHandler, n: f64) -> Result<()> {
+pub fn write_s15f16(io: &mut dyn IoHandler, n: f64) -> Result<()> {
     let n = u32::from_ne_bytes(f64_to_s15_fixed16(n).to_ne_bytes());
     match write_u32(io, n) {
         Ok(_) => Ok(()),
@@ -203,7 +203,7 @@ pub fn write_s15f16(io: &mut IoHandler, n: f64) -> Result<()> {
     }
 }
 
-pub fn write_u16f16(io: &mut IoHandler, n: f64) -> Result<()> {
+pub fn write_u16f16(io: &mut dyn IoHandler, n: f64) -> Result<()> {
     let n = f64_to_u16_fixed16(n);
     match write_u32(io, n) {
         Ok(_) => Ok(()),
@@ -211,7 +211,7 @@ pub fn write_u16f16(io: &mut IoHandler, n: f64) -> Result<()> {
     }
 }
 
-pub fn write_xyz(io: &mut IoHandler, xyz: XYZ) -> Result<()> {
+pub fn write_xyz(io: &mut dyn IoHandler, xyz: XYZ) -> Result<()> {
     if write_s15f16(io, xyz.x).is_err()
         || write_s15f16(io, xyz.y).is_err()
         || write_s15f16(io, xyz.z).is_err()
@@ -222,20 +222,20 @@ pub fn write_xyz(io: &mut IoHandler, xyz: XYZ) -> Result<()> {
     Ok(())
 }
 
-pub fn read_type_base(io: &mut IoHandler) -> Result<Signature> {
+pub fn read_type_base(io: &mut dyn IoHandler) -> Result<Signature> {
     let mut tmp = [0u8; size_of::<u32>()];
-    if (io.read)(io, &mut tmp, size_of::<u32>(), 1) != size_of::<u32>() {
+    if io.read(&mut tmp, size_of::<u32>(), 1) != size_of::<u32>() {
         return Err("Write error in read_type_base".into());
     }
     let result = Signature(u32::from_ne_bytes(tmp));
 
-    if (io.read)(io, &mut tmp, size_of::<u32>(), 1) != size_of::<u32>() {
+    if io.read(&mut tmp, size_of::<u32>(), 1) != size_of::<u32>() {
         return Err("Write error in read_type_base".into());
     }
     Ok(result)
 }
 
-pub fn write_type_base(io: &mut IoHandler, sig: Signature) -> Result<()> {
+pub fn write_type_base(io: &mut dyn IoHandler, sig: Signature) -> Result<()> {
     if write_signature(io, sig).is_err() || write_u32(io, 0u32).is_err() {
         return Err("Write error in write_type_base".into());
     }
@@ -243,10 +243,10 @@ pub fn write_type_base(io: &mut IoHandler, sig: Signature) -> Result<()> {
     Ok(())
 }
 
-pub fn read_alignment(io: &mut IoHandler) -> Result<()> {
+pub fn read_alignment(io: &mut dyn IoHandler) -> Result<()> {
     let mut buffer = [0u8; 4];
 
-    let at = (io.tell)(io);
+    let at = io.tell();
     let next_aligned = align_long(at);
     let bytes_to_next_aligned_pos = next_aligned - at;
     if bytes_to_next_aligned_pos == 0 {
@@ -257,17 +257,17 @@ pub fn read_alignment(io: &mut IoHandler) -> Result<()> {
         return Err("Alignment issues in read_alignment".into());
     }
 
-    if (io.read)(io, &mut buffer, bytes_to_next_aligned_pos, 1) != bytes_to_next_aligned_pos {
+    if io.read(&mut buffer, bytes_to_next_aligned_pos, 1) != bytes_to_next_aligned_pos {
         Err("Read error in read_alignment".into())
     } else {
         Ok(())
     }
 }
 
-pub fn write_alignment(io: &mut IoHandler) -> Result<()> {
+pub fn write_alignment(io: &mut dyn IoHandler) -> Result<()> {
     let buffer = [0u8; 4];
 
-    let at = (io.tell)(io);
+    let at = io.tell();
     let next_aligned = align_long(at);
     let bytes_to_next_aligned_pos = next_aligned - at;
     if bytes_to_next_aligned_pos == 0 {
@@ -278,7 +278,7 @@ pub fn write_alignment(io: &mut IoHandler) -> Result<()> {
         return Err("Alignment issues in write_alignment".into());
     }
 
-    match (io.write)(io, bytes_to_next_aligned_pos, &buffer) {
+    match io.write(bytes_to_next_aligned_pos, &buffer) {
         false => Err("Write error in write_alignment".into()),
         true => Ok(()),
     }

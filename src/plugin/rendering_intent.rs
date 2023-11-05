@@ -1,12 +1,15 @@
-use crate::types::{Pipeline, Profile};
+use crate::{
+    types::{Pipeline, Profile},
+    Context,
+};
 
 use super::Base;
 
-pub type IntentFn = for<'a> fn(
-    context_id: &'static crate::Context,
+pub type IntentFn = fn(
+    context_id: Context,
     n_profiles: u32,
     intents: Box<[u32]>,
-    profiles: Box<[Profile<'a, 'a, 'a>]>,
+    profiles: Box<[Profile]>,
     bpc: Box<[bool]>,
     adaptation_states: Box<[f64]>,
     flags: u32,

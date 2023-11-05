@@ -52,7 +52,7 @@ pub type Sampler16 = fn(In: &[u16], Out: &mut [u16], Cargo: &mut dyn Any) -> boo
 pub type SamplerFloat = fn(In: &[f32], Out: &mut [f32], Cargo: &mut dyn Any) -> bool;
 pub(crate) type PositionTableEntryFn = fn(
     handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     cargo: &dyn Any,
     n: usize,
     size_of_tag: usize,

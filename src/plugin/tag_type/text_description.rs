@@ -1,18 +1,22 @@
 use std::{any::Any, mem::size_of};
 
 use crate::{
+    inlines::align_long,
     io::IoHandler,
-    plugin::{read_signature, read_u16, read_u32, read_u8, write_signature, write_u32, write_u16, write_u8},
+    plugin::{
+        read_signature, read_u16, read_u32, read_u8, write_signature, write_u16, write_u32,
+        write_u8,
+    },
     sig,
     types::{Dup, Signature, MLU},
-    Result, NO_COUNTRY, NO_LANGUAGE, inlines::align_long,
+    Result, NO_COUNTRY, NO_LANGUAGE,
 };
 
-use super::{TagTypeHandler, write_utf16_slice};
+use super::{write_utf16_slice, TagTypeHandler};
 
 pub fn type_text_description_read(
     handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     n_items: &mut usize,
     size_of_tag: usize,
 ) -> Result<Box<dyn Any>> {
@@ -39,7 +43,7 @@ pub fn type_text_description_read(
     let mut text = vec![0u8; ascii_count];
 
     // Read it
-    if (io.read)(io, &mut text, size_of::<u8>(), ascii_count) != ascii_count {
+    if io.read(&mut text, size_of::<u8>(), ascii_count) != ascii_count {
         return Err("Read error in type_text_description_read".into());
     }
     let size_of_tag = size_of_tag - ascii_count;
@@ -80,7 +84,7 @@ pub fn type_text_description_read(
         // Skip rest of tag
         let mut dummy = [0u8];
         for _i in 0..67 {
-            if (io.read)(io, &mut dummy, size_of::<u8>(), 1) != size_of::<u8>() {
+            if io.read(&mut dummy, size_of::<u8>(), 1) != size_of::<u8>() {
                 return Ok(Box::new(mlu));
             }
         }
@@ -91,7 +95,7 @@ pub fn type_text_description_read(
 
 pub fn type_text_description_write(
     _handler: &TagTypeHandler,
-    io: &mut IoHandler,
+    io: &mut dyn IoHandler,
     ptr: &dyn Any,
     _n_items: usize,
 ) -> Result<()> {
@@ -135,11 +139,11 @@ pub fn type_text_description_write(
             let len_aligned = align_long(len_tag_requirement);
 
             write_u32(io, len_text as u32)?;
-            if !(io.write)(io, len_text, &text) {
+            if !io.write(len_text, &text) {
                 return write_err();
             }
 
-            write_u32(io, 0)?;  // ucLanguageCode
+            write_u32(io, 0)?; // ucLanguageCode
 
             write_u32(io, len_text as u32)?;
             write_utf16_slice(io, &wide)?;
@@ -148,13 +152,13 @@ pub fn type_text_description_write(
             write_u16(io, 0)?;
             write_u8(io, 0)?;
 
-            if !(io.write)(io, 67usize, &filler) {
+            if !io.write(67usize, &filler) {
                 return write_err();
             }
 
             // possibly add pad at the end of tag
             if len_aligned - len_tag_requirement > 0 {
-                if !(io.write)(io, len_aligned - len_tag_requirement, &filler) {
+                if !io.write(len_aligned - len_tag_requirement, &filler) {
                     return write_err();
                 }
             }

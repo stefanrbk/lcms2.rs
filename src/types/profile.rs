@@ -1,9 +1,13 @@
-use std::any::Any;
+use std::{any::Any, sync::Arc};
 
 use chrono::{DateTime as dt, Utc};
 
 use super::{DateTime, EncodedXYZ, ProfileID, Signature};
-use crate::{Context, io::IoHandler, plugin::{IMutex, TagTypeHandler}};
+use crate::{
+    io::IoHandler,
+    plugin::{IMutex, TagTypeHandler},
+    Context,
+};
 
 pub struct Header {
     pub size: u32,
@@ -26,9 +30,9 @@ pub struct Header {
     pub reserved: [i8; 28],
 }
 
-pub struct Profile<'mtx, 'a, 'b> {
-    pub context_id: &'static Context,
-    pub io_handler: IoHandler,
+pub struct Profile {
+    pub context_id: Context,
+    pub io_handler: Option<Arc<dyn IoHandler>>,
     pub created: dt<Utc>,
 
     pub version: u32,
@@ -45,21 +49,21 @@ pub struct Profile<'mtx, 'a, 'b> {
 
     pub profile_id: ProfileID,
 
-    pub tags: Vec<TagEntry<'b>>,
-    
+    pub tags: Vec<TagEntry>,
+
     pub is_write: bool,
 
-    pub user_mutex: Option<&'mtx dyn IMutex<'a>>,
+    pub user_mutex: Option<Box<dyn IMutex>>,
 }
 
-pub struct TagEntry<'a> {
+pub struct TagEntry {
     pub name: Signature,
     pub linked: Option<Signature>,
     pub size: usize,
     pub offset: usize,
     pub save_as_raw: bool,
     pub tag_object: Option<Box<dyn Any>>,
-    pub type_handler: &'a TagTypeHandler
+    pub type_handler: Arc<TagTypeHandler>,
 }
 
 pub mod data_access {

@@ -82,7 +82,7 @@ pub fn quick_saturate_word(d: f64) -> u16 {
 }
 
 #[inline]
-pub fn lock_primitive<'a>(m: &'a dyn IMutex<'a>) -> Box<dyn MutexGuard + 'a> {
+pub fn lock_primitive<'a>(m: &'a dyn IMutex) -> Box<dyn MutexGuard + 'a> {
     m.lock()
 }
 
@@ -92,7 +92,7 @@ pub fn unlock_primitive(_m: &dyn IMutex, g: Box<dyn MutexGuard>) {
 }
 
 #[inline]
-pub fn init_mutex_primitive() -> Box<dyn IMutex<'static>> {
+pub fn init_mutex_primitive() -> Box<dyn IMutex> {
     Box::new(std::sync::Mutex::new(()))
 }
 

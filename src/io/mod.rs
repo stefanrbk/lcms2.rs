@@ -1,5 +1,6 @@
 use std::io::{Read, Seek, Write};
 
+mod file;
 mod io_handler;
 mod mem;
 mod null;

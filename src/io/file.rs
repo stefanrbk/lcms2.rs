@@ -1,6 +1,6 @@
 use std::{
     fs::OpenOptions,
-    io::{Read, Seek, SeekFrom, Write, Result}, sync::Arc,
+    io::{Read, Seek, SeekFrom, Write, Result}, sync::{Arc, RwLock},
 };
 
 use log::Level;
@@ -16,12 +16,12 @@ pub struct File {
     used_space: usize,
     reported_size: usize,
     context_id: Context,
-    file: Box<dyn FileLike>,
+    file: Arc<RwLock<Box<dyn FileLike>>>,
     physical_file: String,
 }
 
 impl File {
-    pub fn new(context_id: &Context, file: Box<dyn FileLike>, path: &str) -> Self {
+    pub fn new(context_id: &Context, file: Arc<RwLock<Box<dyn FileLike>>>, path: &str) -> Self {
         File {
             reported_size: 0,
             used_space: 0,
@@ -49,7 +49,7 @@ impl IoHandler for File {
     }
 
     fn read(&mut self, buffer: &mut [u8], size: usize, count: usize) -> usize {
-        let n_read = match self.file.read(&mut buffer[..(size * count)]) {
+        let n_read = match self.file.write().unwrap().read(&mut buffer[..(size * count)]) {
             Ok(len) => len / size,
             Err(error) => {
                 signal_error(
@@ -80,24 +80,13 @@ impl IoHandler for File {
     }
 
     fn seek(&mut self, offset: usize) -> bool {
-        match self.file.seek(SeekFrom::Start(offset as u64)) {
-            Ok(len) => true,
-            Err(error) => {
-                signal_error(
-                    &self.context_id,
-                    Level::Error,
-                    ErrorCode::Seek,
-                    "Seek error; probably corrupted profile",
-                );
-                false
-            }
-        }
+        self.file.write().unwrap().seek(SeekFrom::Start(offset as u64)).is_ok()
     }
 
     fn tell(&mut self) -> usize {
-        match self.file.seek(SeekFrom::Current(0)) {
+        match self.file.write().unwrap().seek(SeekFrom::Current(0)) {
             Ok(pos) => pos as usize,
-            Err(error) => {
+            Err(_) => {
                 signal_error(
                     &self.context_id,
                     Level::Error,
@@ -116,7 +105,7 @@ impl IoHandler for File {
 
         self.used_space += size;
 
-        match self.file.write_all(&buffer[..size]) {
+        match self.file.write().unwrap().write_all(&buffer[..size]) {
             Ok(_) => true,
             Err(error) => {
                 signal_error(&self.context_id, Level::Error, ErrorCode::Write, &format!("Write error occured: {}", error));
@@ -130,12 +119,37 @@ impl IoHandler for File {
     }
 }
 
-pub fn open_io_handler_from_file(
+pub fn open_io_handler_from_file_for_reading(
     context_id: &Context,
     path: &str,
     access: OpenOptions
 ) -> Result<Arc<dyn IoHandler>> {
-    let file = match access.open(path) {
+    let mut file = match access.clone().read(true).open(path) {
+        Ok(f) => f,
+        Err(error) => {
+            signal_error(&context_id, Level::Error, ErrorCode::File, &format!("File open error: {}", error));
+            return Err(error);
+        }
+    };
+
+    let file_len = file_length(&mut file)?;
+
+    let mut file = File::new(
+        &context_id,
+        Arc::new(RwLock::new(Box::new(file))),
+        path
+    );
+    file.reported_size = file_len;
+
+    Ok(Arc::new(file))
+}
+
+pub fn open_io_handler_from_file_for_writing(
+    context_id: &Context,
+    path: &str,
+    access: OpenOptions
+) -> Result<Arc<dyn IoHandler>> {
+    let file = match access.clone().write(true).open(path) {
         Ok(f) => f,
         Err(error) => {
             signal_error(&context_id, Level::Error, ErrorCode::File, &format!("File open error: {}", error));
@@ -145,9 +159,34 @@ pub fn open_io_handler_from_file(
 
     let file = File::new(
         &context_id,
-        Box::new(file),
+        Arc::new(RwLock::new(Box::new(file))),
         path
     );
 
     Ok(Arc::new(file))
+}
+
+pub fn open_io_handler_from_stream(context_id: &Context, stream: &Arc<RwLock<Box<dyn FileLike>>>) -> Result<Arc<dyn IoHandler>> {
+    let mut file = stream.write().unwrap();
+    let file = file.as_mut();
+    let file_size = file_length(file)?;
+
+    let mut file = File::new(
+        &context_id,
+        stream.clone(),
+        ""
+    );
+    file.reported_size = file_size;
+
+    Ok(Arc::new(file))
+}
+
+fn file_length(file: &mut dyn FileLike) -> Result<usize> {
+    let p = file.seek(SeekFrom::Current(0))?;
+
+    let n = file.seek(SeekFrom::End(0))?;
+
+    file.seek(SeekFrom::Start(p))?;
+
+    Ok(n as usize)
 }
